@@ -359,7 +359,7 @@ th { background: var(--input-bg); color: var(--gold); }
 
     <button class="btn btn-sm" onclick="toggleTheme()" style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text);">☀️ Theme</button>
   </div>
-</div> 
+</div>
 
 <!-- MAIN CONTENT -->
 <div class="main-content">
@@ -443,7 +443,7 @@ th { background: var(--input-bg); color: var(--gold); }
           <div style="display: flex; gap: 8px; margin-top: 5px;">
             <select id="branchFilter" onchange="filterSalesTable()" style="flex:1;">
               <option value="MY_BRANCH">🏢 My Current Branch</option>
-              <option value="ALL" id="opt_all_branches" disabled>🔓 All Branches (Main Owner)</option>
+              <option value="ALL" id="opt_all_branches">🔓 All Branches (Main Owner)</option>
             </select>
             <button class="btn btn-sm btn-success" onclick="addNewBranchWithPin()" title="Add New Branch (Main Branch Only)">➕ Add Branch</button>
             <button class="btn btn-sm btn-danger" onclick="deleteSelectedBranchWithPin()" title="Delete Branch (Main Branch Only)">🗑️ Delete Branch</button>
@@ -539,7 +539,7 @@ th { background: var(--input-bg); color: var(--gold); }
     <h2 style="margin:0; color:#000;">IFTUU FURNITURE</h2>
     <p style="font-size:12px; margin-top:2px; margin-bottom: 10px;">Official Receipt / Nagahee</p>
     
-    <img id="receiptImage" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; margin: 0 auto 10px auto;" src="" alt="Photo">
+    <img id="receiptImage" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; margin: 0 auto 10px auto; display:block;" src="" alt="Photo">
     
     <div id="receiptDetails" style="text-align:left; font-size:13px; line-height: 1.6; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0;"></div>
     
@@ -592,9 +592,9 @@ th { background: var(--input-bg); color: var(--gold); }
 </div>
 
 <script>
-  // 🔴 CLOUDINARY CONFIGURATION (Odeeffannoo kee asitti bakka buusi)
-  const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";       // e.g. "iftuabc"
-  const CLOUDINARY_UPLOAD_PRESET = "YOUR_UPLOAD_PRESET"; // e.g. "iftuabc_preset"
+  // 🔴 CLOUDINARY CONFIGURATION
+  const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";       // Update with your actual Cloudinary Cloud Name
+  const CLOUDINARY_UPLOAD_PRESET = "eiftuabc";          // Upload preset configured to eiftuabc
 
   const MAIN_BRANCH_NAME = "Ginchi Branch";
   let pageHistory = ['tab-pos'];
@@ -624,7 +624,7 @@ th { background: var(--input-bg); color: var(--gold); }
   let allRecords = JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [];
   let trashRecords = JSON.parse(localStorage.getItem("IFTU_TRASH_RECORDS")) || [];
   
-  let base64Image = ""; // Now holds Cloudinary image URL
+  let base64Image = ""; // Holds uploaded Cloudinary Image URL or Base64 string fallback
   let html5QrCode = null;
 
   const translations = {
@@ -704,14 +704,14 @@ th { background: var(--input-bg); color: var(--gold); }
     },
     en: {
       lblMenuBtn: "Menus",
-      lblNavReg: "Register Item",
+      lblNavReg: "Item Registration",
       lblNavSales: "Sales Records",
       lblNavSettings: "Settings",
       lblNavLock: "Switch Branch",
       lblLockSub: "Enter PIN to access form.",
       lblSelectBranch: "Select Branch:",
       btnLogin: "Login",
-      hdrReg: "📝 Register New Item",
+      hdrReg: "📝 New Item Registration",
       lblCustomer: "Customer Name",
       lblItemType: "Item Type",
       lblColor: "Color",
@@ -724,12 +724,12 @@ th { background: var(--input-bg); color: var(--gold); }
       lblDeliveryDate: "📅 Delivery Date",
       lblStatus: "Delivery Status",
       lblPhoto: "Item Photo",
-      btnSave: "💾 Save & Print Receipt",
+      btnSave: "💾 Save & Print",
       hdrSales: "📋 Sales Records",
-      hdrSettings: "⚙️ Settings & Recycle Bin",
+      hdrSettings: "⚙️ System Settings & Recycle Bin",
       lblSearch: "🔍 Search:",
-      thName: "Customer Name",
-      thItem: "Item Type",
+      thName: "Name",
+      thItem: "Item",
       thPrice: "Total Price",
       thDeposit: "Deposit",
       thBalance: "Balance",
@@ -741,24 +741,15 @@ th { background: var(--input-bg); color: var(--gold); }
     }
   };
 
-  function changeLanguage() {
-    const lang = document.getElementById("langSelect").value;
-    const dict = translations[lang];
-
-    for (let key in dict) {
-      const el = document.getElementById(key);
-      if (el) el.innerText = dict[key];
-    }
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle("light-mode");
-  }
+  window.onload = function() {
+    populateBranchDropdowns();
+    changeLanguage();
+  };
 
   function populateBranchDropdowns() {
     const loginSel = document.getElementById("loginBranchSelect");
-    const filterSel = document.getElementById("branchFilter");
     const changePinSel = document.getElementById("changePinBranchSelect");
+    const filterSel = document.getElementById("branchFilter");
 
     const currentFilterVal = filterSel ? filterSel.value : "MY_BRANCH";
 
@@ -768,7 +759,7 @@ th { background: var(--input-bg); color: var(--gold); }
     if (filterSel) {
       filterSel.innerHTML = `
         <option value="MY_BRANCH">🏢 My Current Branch</option>
-        <option value="ALL" id="opt_all_branches" ${isMainOwner ? '' : 'disabled'}>🔓 All Branches (Main Owner)</option>
+        <option value="ALL" id="opt_all_branches">🔓 All Branches (Main Owner)</option>
       `;
     }
 
@@ -979,119 +970,113 @@ th { background: var(--input-bg); color: var(--gold); }
     setTimeout(() => startQrScanner(), 300);
   }
 
+  /* QR SCAN SUCCESS HANDLER */
   function onScanSuccess(decodedText) {
-    const foundRecord = allRecords.find(r => r.id === decodedText.trim());
-    if (foundRecord) {
-      showReceiptModal(foundRecord);
+    const foundRec = allRecords.find(r => r.id === decodedText.trim() || decodedText.includes(r.id));
+    if (foundRec) {
+      showReceipt(foundRec.id);
     } else {
-      alert(`⚠️ Record with ID "${decodedText}" not found!`);
+      alert("🔍 Scanned Details:\n" + decodedText);
     }
   }
 
-  // ☁️ CLOUDINARY UPLOAD FUNCTION
-  async function previewAndCompressImage(e) {
-    const file = e.target.files[0];
+  /* CALCULATE BALANCE */
+  function calculateAftee() {
+    const gati = parseFloat(document.getElementById("gati").value) || 0;
+    const qabdu = parseFloat(document.getElementById("qabdu").value) || 0;
+    document.getElementById("aftee").value = Math.max(0, gati - qabdu);
+  }
+
+  /* CLOUDINARY IMAGE PREVIEW & UPLOAD */
+  async function previewAndCompressImage(event) {
+    const file = event.target.files[0];
     if (!file) return;
 
-    if (CLOUDINARY_CLOUD_NAME === "YOUR_CLOUD_NAME" || CLOUDINARY_UPLOAD_PRESET === "YOUR_UPLOAD_PRESET") {
-      alert("⚠️  Cloudinary Settings kessatti Cloud Name fi Upload Preset galchuun sirrii miti! Code keessa sarara 360-362 ilaali.");
-      return;
-    }
-
+    const preview = document.getElementById("imgPreview");
     const spinner = document.getElementById("uploadSpinner");
-    const imgPreview = document.getElementById("imgPreview");
-    
-    spinner.style.display = "block";
-    imgPreview.style.display = "none";
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    // Show instant local preview
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
 
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-        {
+    // Direct Cloudinary Upload if Cloud Name set, otherwise Base64 fallback
+    if (CLOUDINARY_CLOUD_NAME !== "YOUR_CLOUD_NAME") {
+      spinner.style.display = "block";
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+      try {
+        const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
           method: "POST",
           body: formData
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+          base64Image = data.secure_url;
         }
-      );
-
-      const data = await response.json();
-
-      if (data.secure_url) {
-        base64Image = data.secure_url; // Direct Image URL Cloudinary
-        imgPreview.src = base64Image;
-        imgPreview.style.display = "block";
-        alert("✅ Suuraan Cloudinary irratti ol-fe'ameera!");
-      } else {
-        alert("❌ Error: " + (data.error ? data.error.message : "Upload failed!"));
+      } catch (err) {
+        console.warn("Cloudinary upload failed, falling back to base64 encoding", err);
+        fallbackBase64(file);
+      } finally {
+        spinner.style.display = "none";
       }
-    } catch (err) {
-      console.error("Cloudinary Upload Error:", err);
-      alert("❌ Suuraa ol-fe'uu irratti dogoggorri uumameera!");
-    } finally {
-      spinner.style.display = "none";
+    } else {
+      fallbackBase64(file);
     }
   }
 
-  function calculateAftee() {
-    const total = parseFloat(document.getElementById("gati").value) || 0;
-    const deposit = parseFloat(document.getElementById("qabdu").value) || 0;
-    const balance = total - deposit;
-    document.getElementById("aftee").value = balance >= 0 ? balance : 0;
+  function fallbackBase64(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      base64Image = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 
+  /* SAVE OR UPDATE RECORD */
   function saveRecord() {
-    const name = document.getElementById("maqa").value.trim();
-    const item = document.getElementById("gosaMeeshaa").value.trim();
-    const price = parseFloat(document.getElementById("gati").value) || 0;
-    const deposit = parseFloat(document.getElementById("qabdu").value) || 0;
-    const balance = parseFloat(document.getElementById("aftee").value) || 0;
-    const country = document.getElementById("biyya").value.trim() || "Ethiopia";
-    const address = document.getElementById("bakkaIttiDemmu").value.trim();
-    const phone = document.getElementById("lakkBil").value.trim();
-    const color = document.getElementById("haluu").value.trim();
-    const date = document.getElementById("guyyaaBelamaa").value;
-    const status = document.getElementById("kanBae").value;
+    const maqa = document.getElementById("maqa").value.trim();
+    const gosaMeeshaa = document.getElementById("gosaMeeshaa").value.trim();
+    const gati = document.getElementById("gati").value;
 
-    if (!name || !item || price <= 0) {
-      alert("⚠️ Please fill in Customer Name, Item Type, and Total Price!");
+    if (!maqa || !gosaMeeshaa || !gati) {
+      alert("⚠️ Maqaa, Gosa Meeshaa fi Gati guutaa!");
       return;
     }
 
-    if (currentEditingId) {
-      // Editing existing record
-      const index = allRecords.findIndex(r => r.id === currentEditingId);
-      if (index !== -1) {
-        allRecords[index] = {
-          ...allRecords[index],
-          name, item, color, price, deposit, balance, country, address, phone, date, status,
-          photo: base64Image || allRecords[index].photo
-        };
-        localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-        showReceiptModal(allRecords[index]);
-        alert("✅ Record updated successfully!");
-      }
-      currentEditingId = null;
-      document.getElementById("btnSave").innerText = "💾 Galmeessi & Print";
-    } else {
-      // Creating new record
-      const newRecord = {
-        id: "IFTU-" + Math.floor(100000 + Math.random() * 900000),
-        branch: activeBranch,
-        name, item, color, price, deposit, balance, country, address, phone, date, status,
-        photo: base64Image,
-        createdDate: new Date().toLocaleDateString()
-      };
+    let recordId = currentEditingId ? currentEditingId : 'IFTU-' + Math.floor(100000 + Math.random() * 900000);
 
-      allRecords.unshift(newRecord);
-      localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-      showReceiptModal(newRecord);
+    const recordData = {
+      id: recordId,
+      branch: activeBranch || MAIN_BRANCH_NAME,
+      maqa: maqa,
+      gosaMeeshaa: gosaMeeshaa,
+      haluu: document.getElementById("haluu").value.trim(),
+      gati: parseFloat(gati) || 0,
+      qabdu: parseFloat(document.getElementById("qabdu").value) || 0,
+      aftee: parseFloat(document.getElementById("aftee").value) || 0,
+      biyya: document.getElementById("biyya").value.trim() || "Ethiopia",
+      bakkaIttiDemmu: document.getElementById("bakkaIttiDemmu").value.trim(),
+      lakkBil: document.getElementById("lakkBil").value.trim(),
+      guyyaaBelamaa: document.getElementById("guyyaaBelamaa").value,
+      kanBae: document.getElementById("kanBae").value,
+      photo: base64Image
+    };
+
+    if (currentEditingId) {
+      const idx = allRecords.findIndex(r => r.id === currentEditingId);
+      if (idx !== -1) allRecords[idx] = recordData;
+      currentEditingId = null;
+    } else {
+      allRecords.unshift(recordData);
     }
+
+    localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
 
     clearForm();
     filterSalesTable();
+    showReceipt(recordId);
   }
 
   function clearForm() {
@@ -1108,112 +1093,109 @@ th { background: var(--input-bg); color: var(--gold); }
     document.getElementById("kanBae").value = "Pending";
     document.getElementById("itemPhoto").value = "";
     document.getElementById("imgPreview").style.display = "none";
-    document.getElementById("uploadSpinner").style.display = "none";
     base64Image = "";
-    currentEditingId = null;
     document.getElementById("btnSave").innerText = "💾 Galmeessi & Print";
   }
 
+  /* RENDER & FILTER SALES TABLE */
   function filterSalesTable() {
-    const filterVal = document.getElementById("branchFilter").value;
-    const query = document.getElementById("searchInput").value.toLowerCase().trim();
     const tbody = document.getElementById("salesTableBody");
     tbody.innerHTML = "";
 
-    let recordsToDisplay = allRecords;
+    const filterVal = document.getElementById("branchFilter").value;
+    const searchVal = document.getElementById("searchInput").value.toLowerCase();
 
-    if (filterVal === "MY_BRANCH") {
-      recordsToDisplay = allRecords.filter(r => r.branch === activeBranch);
-    } else if (filterVal !== "ALL") {
-      recordsToDisplay = allRecords.filter(r => r.branch === filterVal);
-    }
+    const filtered = allRecords.filter(r => {
+      // Branch Filtering
+      let branchMatch = false;
+      if (filterVal === "MY_BRANCH") {
+        branchMatch = (r.branch === activeBranch);
+      } else if (filterVal === "ALL") {
+        branchMatch = true;
+      } else {
+        branchMatch = (r.branch === filterVal);
+      }
 
-    if (query) {
-      recordsToDisplay = recordsToDisplay.filter(r => 
-        (r.id && r.id.toLowerCase().includes(query)) ||
-        (r.name && r.name.toLowerCase().includes(query)) ||
-        (r.item && r.item.toLowerCase().includes(query)) ||
-        (r.address && r.address.toLowerCase().includes(query)) ||
-        (r.phone && r.phone.toLowerCase().includes(query))
+      // Search Filtering
+      const searchMatch = (
+        r.id.toLowerCase().includes(searchVal) ||
+        r.maqa.toLowerCase().includes(searchVal) ||
+        r.gosaMeeshaa.toLowerCase().includes(searchVal) ||
+        (r.bakkaIttiDemmu && r.bakkaIttiDemmu.toLowerCase().includes(searchVal))
       );
-    }
 
-    recordsToDisplay.forEach((r, index) => {
+      return branchMatch && searchMatch;
+    });
+
+    filtered.forEach((r, index) => {
       const tr = document.createElement("tr");
-      
-      const isMyBranch = (r.branch === activeBranch);
-      const canEditDelete = isMyBranch || isMainOwner;
+
+      const imgTag = r.photo 
+        ? `<img src="${r.photo}" class="img-preview" alt="item">` 
+        : `<div class="img-preview" style="display:flex;align-items:center;justify-content:center;background:var(--input-bg);">🖼️</div>`;
 
       tr.innerHTML = `
-        <td><img src="${r.photo || 'https://via.placeholder.com/45'}" class="img-preview" alt="item"></td>
+        <td>${imgTag}</td>
         <td>${index + 1}</td>
         <td><strong>${r.id}</strong></td>
-        <td><span style="font-size:11px; background:var(--input-bg); padding:2px 6px; border-radius:4px; border:1px solid var(--border);">${r.branch}</span></td>
-        <td>${r.name}</td>
-        <td>${r.item} ${r.color ? '(' + r.color + ')' : ''}</td>
-        <td>${r.price} ETB</td>
-        <td style="color:var(--green);">${r.deposit} ETB</td>
-        <td style="color:var(--red); font-weight:bold;">${r.balance} ETB</td>
-        <td>${r.country || 'Ethiopia'}</td>
-        <td>${r.address || '-'}</td>
-        <td>${r.phone || '-'}</td>
-        <td>${r.date || '-'}</td>
-        <td><span class="badge-open" style="background:${r.status === 'Delivered' ? 'var(--green)' : '#e67e22'}">${r.status}</span></td>
+        <td><span style="color:var(--gold); font-weight:bold;">${r.branch}</span></td>
+        <td>${r.maqa}</td>
+        <td>${r.gosaMeeshaa} (${r.haluu || '-'})</td>
+        <td>${r.gati} ETB</td>
+        <td>${r.qabdu} ETB</td>
+        <td style="color:${r.aftee > 0 ? 'var(--red)' : 'var(--green)'}; font-weight:bold;">${r.aftee} ETB</td>
+        <td>${r.biyya}</td>
+        <td>${r.bakkaIttiDemmu || '-'}</td>
+        <td>${r.lakkBil || '-'}</td>
+        <td>${r.guyyaaBelamaa || '-'}</td>
+        <td><span style="color:${r.kanBae === 'Delivered' ? 'var(--green)' : '#e67e22'}; font-weight:bold;">${r.kanBae}</span></td>
         <td>
-          <button class="btn btn-sm" onclick="viewReceipt('${r.id}')" title="Print Receipt">🖨️</button>
-          ${canEditDelete ? `<button class="btn btn-sm btn-warning" onclick="editRecord('${r.id}')" title="Edit">✏️</button>` : ''}
-          ${canEditDelete ? `<button class="btn btn-sm btn-danger" onclick="moveToTrash('${r.id}')" title="Delete">🗑️</button>` : ''}
+          <button class="btn btn-sm" onclick="showReceipt('${r.id}')">🧾 Receipt</button>
+          <button class="btn btn-sm btn-warning" onclick="editRecord('${r.id}')">✏️ Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="moveToTrash('${r.id}')">🗑️ Trash</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
   }
 
+  /* EDIT RECORD */
   function editRecord(id) {
-    const record = allRecords.find(r => r.id === id);
-    if (!record) return;
+    const rec = allRecords.find(r => r.id === id);
+    if (!rec) return;
 
-    if (record.branch !== activeBranch && !isMainOwner) {
-      alert("🔒 Authorization Denied: You cannot edit records belonging to another branch!");
-      return;
+    currentEditingId = rec.id;
+    document.getElementById("maqa").value = rec.maqa;
+    document.getElementById("gosaMeeshaa").value = rec.gosaMeeshaa;
+    document.getElementById("haluu").value = rec.haluu || "";
+    document.getElementById("gati").value = rec.gati;
+    document.getElementById("qabdu").value = rec.qabdu;
+    document.getElementById("aftee").value = rec.aftee;
+    document.getElementById("biyya").value = rec.biyya;
+    document.getElementById("bakkaIttiDemmu").value = rec.bakkaIttiDemmu || "";
+    document.getElementById("lakkBil").value = rec.lakkBil || "";
+    document.getElementById("guyyaaBelamaa").value = rec.guyyaaBelamaa || "";
+    document.getElementById("kanBae").value = rec.kanBae;
+
+    if (rec.photo) {
+      base64Image = rec.photo;
+      const preview = document.getElementById("imgPreview");
+      preview.src = rec.photo;
+      preview.style.display = "block";
     }
 
-    currentEditingId = id;
-    document.getElementById("maqa").value = record.name || "";
-    document.getElementById("gosaMeeshaa").value = record.item || "";
-    document.getElementById("haluu").value = record.color || "";
-    document.getElementById("gati").value = record.price || 0;
-    document.getElementById("qabdu").value = record.deposit || 0;
-    document.getElementById("aftee").value = record.balance || 0;
-    document.getElementById("biyya").value = record.country || "";
-    document.getElementById("bakkaIttiDemmu").value = record.address || "";
-    document.getElementById("lakkBil").value = record.phone || "";
-    document.getElementById("guyyaaBelamaa").value = record.date || "";
-    document.getElementById("kanBae").value = record.status || "Pending";
-
-    if (record.photo) {
-      base64Image = record.photo;
-      const imgPreview = document.getElementById("imgPreview");
-      imgPreview.src = record.photo;
-      imgPreview.style.display = "block";
-    }
-
-    document.getElementById("btnSave").innerText = "💾 Update Record";
+    document.getElementById("btnSave").innerText = "🔄 Update Record & Print";
     switchTab('tab-pos');
   }
 
+  /* SOFT DELETE - MOVE TO TRASH */
   function moveToTrash(id) {
-    const record = allRecords.find(r => r.id === id);
-    if (!record) return;
+    if (!confirm("⚠️ Are you sure you want to move this item to Recycle Bin?")) return;
 
-    if (record.branch !== activeBranch && !isMainOwner) {
-      alert("🔒 Authorization Denied: You cannot delete records belonging to another branch!");
-      return;
-    }
-
-    if (confirm(`🗑️ Delete record for ${record.name}? It will be moved to the Recycle Bin.`)) {
-      allRecords = allRecords.filter(r => r.id !== id);
-      trashRecords.unshift(record);
+    const idx = allRecords.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      const removed = allRecords.splice(idx, 1)[0];
+      trashRecords.unshift(removed);
 
       localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
       localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
@@ -1223,22 +1205,22 @@ th { background: var(--input-bg); color: var(--gold); }
     }
   }
 
+  /* RENDER TRASH TABLE */
   function renderTrashTable() {
     const tbody = document.getElementById("trashTableBody");
-    if (!tbody) return;
     tbody.innerHTML = "";
 
     trashRecords.forEach(r => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td><strong>${r.id}</strong></td>
+        <td>${r.id}</td>
         <td>${r.branch}</td>
-        <td>${r.name}</td>
-        <td>${r.item}</td>
-        <td>${r.price} ETB</td>
+        <td>${r.maqa}</td>
+        <td>${r.gosaMeeshaa}</td>
+        <td>${r.gati} ETB</td>
         <td>
-          <button class="btn btn-sm btn-success" onclick="restoreFromTrash('${r.id}')">🔄 Restore</button>
-          <button class="btn btn-sm btn-danger" onclick="permanentlyDeleteFromTrash('${r.id}')">❌ Delete Forever</button>
+          <button class="btn btn-sm btn-success" onclick="restoreFromTrash('${r.id}')">♻️ Restore</button>
+          <button class="btn btn-sm btn-danger" onclick="permanentlyDelete('${r.id}')">❌ Delete</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -1246,79 +1228,62 @@ th { background: var(--input-bg); color: var(--gold); }
   }
 
   function restoreFromTrash(id) {
-    const record = trashRecords.find(r => r.id === id);
-    if (!record) return;
+    const idx = trashRecords.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      const restored = trashRecords.splice(idx, 1)[0];
+      allRecords.unshift(restored);
 
-    trashRecords = trashRecords.filter(r => r.id !== id);
-    allRecords.unshift(record);
-
-    localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-    localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
-
-    filterSalesTable();
-    renderTrashTable();
-    alert(`✅ Record ${id} restored!`);
-  }
-
-  function permanentlyDeleteFromTrash(id) {
-    if (confirm("⚠️ Permanently delete this record? This action cannot be undone.")) {
-      trashRecords = trashRecords.filter(r => r.id !== id);
+      localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
       localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
+
+      filterSalesTable();
       renderTrashTable();
     }
+  }
+
+  function permanentlyDelete(id) {
+    if (!confirm("🚨 Permanently delete this record? This action CANNOT be undone!")) return;
+
+    trashRecords = trashRecords.filter(r => r.id !== id);
+    localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
+    renderTrashTable();
   }
 
   function emptyRecycleBin() {
-    if (trashRecords.length === 0) {
-      alert("ℹ️ Recycle Bin is already empty.");
-      return;
-    }
-    if (confirm("⚠️ Empty entire Recycle Bin? All deleted records will be permanently erased.")) {
-      trashRecords = [];
-      localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
-      renderTrashTable();
-    }
+    if (!confirm("🧹 Are you sure you want to empty the ENTIRE Recycle Bin?")) return;
+    trashRecords = [];
+    localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
+    renderTrashTable();
   }
 
-  function viewReceipt(id) {
-    const record = allRecords.find(r => r.id === id);
-    if (record) {
-      showReceiptModal(record);
-    }
-  }
+  /* DISPLAY PRINTABLE RECEIPT MODAL */
+  function showReceipt(id) {
+    const rec = allRecords.find(r => r.id === id);
+    if (!rec) return;
 
-  function showReceiptModal(record) {
-    const details = document.getElementById("receiptDetails");
-    const img = document.getElementById("receiptImage");
-
-    if (record.photo) {
-      img.src = record.photo;
-      img.style.display = "block";
-    } else {
-      img.style.display = "none";
-    }
-
-    details.innerHTML = `
-      <strong>ID:</strong> ${record.id}<br>
-      <strong>Branch:</strong> ${record.branch}<br>
-      <strong>Customer:</strong> ${record.name}<br>
-      <strong>Item:</strong> ${record.item} ${record.color ? '(' + record.color + ')' : ''}<br>
-      <strong>Total Price:</strong> ${record.price} ETB<br>
-      <strong>Deposit Paid:</strong> ${record.deposit} ETB<br>
-      <strong>Balance Due:</strong> ${record.balance} ETB<br>
-      <strong>Country:</strong> ${record.country || 'Ethiopia'}<br>
-      <strong>Delivery Address:</strong> ${record.address || '-'}<br>
-      <strong>Phone:</strong> ${record.phone || '-'}<br>
-      <strong>Delivery Date:</strong> ${record.date || '-'}<br>
-      <strong>Status:</strong> ${record.status}
+    document.getElementById("receiptImage").src = rec.photo || "https://via.placeholder.com/120?text=No+Photo";
+    document.getElementById("receiptDetails").innerHTML = `
+      <strong>Receipt ID:</strong> ${rec.id}<br>
+      <strong>Branch:</strong> ${rec.branch}<br>
+      <strong>Customer:</strong> ${rec.maqa}<br>
+      <strong>Item:</strong> ${rec.gosaMeeshaa} (${rec.haluu || 'Standard'})<br>
+      <strong>Total Price:</strong> ${rec.gati} ETB<br>
+      <strong>Deposit Paid:</strong> ${rec.qabdu} ETB<br>
+      <strong>Balance Due:</strong> <span style="color:${rec.aftee > 0 ? 'red' : 'green'};">${rec.aftee} ETB</span><br>
+      <strong>Country:</strong> ${rec.biyya}<br>
+      <strong>Delivery Place:</strong> ${rec.bakkaIttiDemmu || '-'}<br>
+      <strong>Phone:</strong> ${rec.lakkBil || '-'}<br>
+      <strong>Delivery Date:</strong> ${rec.guyyaaBelamaa || '-'}<br>
+      <strong>Status:</strong> ${rec.kanBae}
     `;
 
+    // Render QR Code inside Receipt Modal
     const qrContainer = document.getElementById("qrcode");
     qrContainer.innerHTML = "";
     new QRCode(qrContainer, {
-      text: record.id,
-      width: 120,
-      height: 120
+      text: `ID:${rec.id}|Customer:${rec.maqa}|Item:${rec.gosaMeeshaa}|Balance:${rec.aftee}`,
+      width: 100,
+      height: 100
     });
 
     document.getElementById("receiptModal").style.display = "flex";
@@ -1328,73 +1293,73 @@ th { background: var(--input-bg); color: var(--gold); }
     document.getElementById("receiptModal").style.display = "none";
   }
 
+  /* PIN RECOVERY MODAL HANDLERS */
   function openForgetPinModal() {
     document.getElementById("pinModal").style.display = "flex";
   }
 
   function closePinModal() {
     document.getElementById("pinModal").style.display = "none";
-    document.getElementById("recoveryKeyInput").value = "";
-    document.getElementById("newPinInput").value = "";
   }
 
   function resetPinWithRecovery() {
     const key = document.getElementById("recoveryKeyInput").value.trim();
     const newPin = document.getElementById("newPinInput").value.trim();
-    const branch = document.getElementById("loginBranchSelect").value;
 
-    if (key === RECOVERY_KEY) {
-      if (newPin.length >= 4) {
-        branchPINs[branch] = newPin;
-        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-        alert(`✅ PIN for ${branch} successfully reset!`);
-        closePinModal();
-      } else {
-        alert("⚠️ New PIN must be at least 4 digits.");
-      }
+    if (key === RECOVERY_KEY && newPin.length >= 4) {
+      const selectedBranch = document.getElementById("loginBranchSelect").value;
+      branchPINs[selectedBranch] = newPin;
+      localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
+      alert(`✅ PIN for ${selectedBranch} successfully updated!`);
+      closePinModal();
     } else {
-      alert("❌ Invalid Recovery Keyword!");
+      alert("❌ Invalid Recovery Keyword or PIN invalid!");
     }
   }
 
+  /* CHANGE PIN MODAL HANDLERS */
   function openChangePinModal() {
-    populateBranchDropdowns();
     document.getElementById("changePinModal").style.display = "flex";
   }
 
   function closeChangePinModal() {
     document.getElementById("changePinModal").style.display = "none";
-    document.getElementById("mainBranchAuthPinInput").value = "";
-    document.getElementById("changeNewPinInput").value = "";
   }
 
   function submitChangePin() {
     const targetBranch = document.getElementById("changePinBranchSelect").value;
-    const authPin = document.getElementById("mainBranchAuthPinInput").value.trim();
-    const newPin = document.getElementById("changeNewPinInput").value.trim();
+    const mainAuthPin = document.getElementById("mainBranchAuthPinInput").value;
+    const newPin = document.getElementById("changeNewPinInput").value;
 
-    if (authPin !== branchPINs[MAIN_BRANCH_NAME]) {
-      alert("❌ Main Branch Authorization PIN incorrect!");
-      return;
+    if (mainAuthPin === branchPINs[MAIN_BRANCH_NAME]) {
+      if (newPin && newPin.length >= 4) {
+        branchPINs[targetBranch] = newPin;
+        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
+        alert(`✅ PIN for ${targetBranch} changed successfully!`);
+        closeChangePinModal();
+      } else {
+        alert("⚠️ New PIN must be at least 4 digits long.");
+      }
+    } else {
+      alert("❌ Main Branch PIN incorrect!");
     }
-
-    if (newPin.length < 4) {
-      alert("⚠️ New PIN must be at least 4 digits long.");
-      return;
-    }
-
-    branchPINs[targetBranch] = newPin;
-    localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-    alert(`✅ PIN for "${targetBranch}" changed successfully!`);
-    closeChangePinModal();
   }
 
-  // Initialize page on load
-  window.onload = function() {
-    populateBranchDropdowns();
-    updateLockTitle();
-    filterSalesTable();
-  };
+  /* LANGUAGE CHANGE FUNCTION */
+  function changeLanguage() {
+    const lang = document.getElementById("langSelect").value;
+    const t = translations[lang] || translations.om;
+
+    for (let key in t) {
+      const el = document.getElementById(key);
+      if (el) el.innerText = t[key];
+    }
+  }
+
+  /* LIGHT/DARK THEME TOGGLE */
+  function toggleTheme() {
+    document.body.classList.toggle("light-mode");
+  }
 </script>
 
 </body>
