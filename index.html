@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IFTUU FURNITURE - POS V17</title>
+<title>IFTUU FURNITURE - POS V19 (Cloudinary Integrated)</title>
 
 <!-- QR Code Generator & Scanner Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -11,149 +11,149 @@
 
 <style>
 :root {
-  --bg: #121214;
-  --card: #1c1c21;
-  --text: #f0f0f0;
-  --muted: #888;
-  --gold: #d4af37;
-  --green: #2ecc71;
-  --red: #e74c3c;
-  --border: #2a2a32;
-  --input-bg: #25252e;
+  --bg: #121214;
+  --card: #1c1c21;
+  --text: #f0f0f0;
+  --muted: #888;
+  --gold: #d4af37;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --border: #2a2a32;
+  --input-bg: #25252e;
 }
 
 body.light-mode {
-  --bg: #f4f6f9;
-  --card: #ffffff;
-  --text: #1a1a20;
-  --muted: #666666;
-  --gold: #b8860b;
-  --green: #27ae60;
-  --red: #c0392b;
-  --border: #dcdcdc;
-  --input-bg: #f0f2f5;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --text: #1a1a20;
+  --muted: #666666;
+  --gold: #b8860b;
+  --green: #27ae60;
+  --red: #c0392b;
+  --border: #dcdcdc;
+  --input-bg: #f0f2f5;
 }
 
 * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: background 0.2s, color 0.2s; }
 
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* TOP NAVIGATION */
 .top-bar {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 10px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 100;
-  flex-wrap: wrap;
-  gap: 10px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .brand {
-  font-size: 18px;
-  font-weight: bold;
-  color: var(--gold);
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .nav-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .back-btn {
-  background: var(--input-bg);
-  color: var(--gold);
-  border: 1px solid var(--gold);
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--input-bg);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .back-btn:hover {
-  background: var(--gold);
-  color: #fff;
+  background: var(--gold);
+  color: #fff;
 }
 
 .dropdown {
-  position: relative;
-  display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .dropdown-btn {
-  background: var(--input-bg);
-  color: var(--text);
-  border: 1px solid var(--border);
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+  background: var(--input-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .dropdown-btn:hover { border-color: var(--gold); }
 
 .dropdown-content {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background-color: var(--card);
-  min-width: 240px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  z-index: 200;
-  margin-top: 5px;
-  overflow: hidden;
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--card);
+  min-width: 240px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.5);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  z-index: 200;
+  margin-top: 5px;
+  overflow: hidden;
 }
 
 .dropdown-content button {
-  color: var(--text);
-  padding: 12px 16px;
-  display: block;
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  font-weight: 600;
+  color: var(--text);
+  padding: 12px 16px;
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .dropdown-content button:hover, .dropdown-content button.active {
-  background-color: var(--gold);
-  color: #fff;
+  background-color: var(--gold);
+  color: #fff;
 }
 
 .show { display: block; }
 
 /* MAIN CONTENT */
 .main-content {
-  flex: 1;
-  padding: 25px;
-  overflow-y: auto;
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
 }
 
 .section { display: none; }
@@ -161,31 +161,31 @@ body {
 
 /* LOCK OVERLAY */
 .lock-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(18, 18, 20, 0.95);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(18, 18, 20, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .lock-card {
-  background: var(--card);
-  border: 1px solid var(--gold);
-  border-radius: 16px;
-  padding: 30px;
-  width: 380px;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  background: var(--card);
+  border: 1px solid var(--gold);
+  border-radius: 16px;
+  padding: 30px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
 .lock-card h2 { color: var(--gold); margin-top: 0; }
 
 .form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
 }
 
 .form-group { margin-bottom: 15px; }
@@ -194,23 +194,23 @@ body {
 label { display: block; margin-bottom: 6px; color: var(--muted); font-size: 13px; }
 
 input, select, textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--input-bg);
-  color: var(--text);
-  outline: none;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--input-bg);
+  color: var(--text);
+  outline: none;
 }
 
 .btn {
-  padding: 10px 18px;
-  background: var(--gold);
-  color: #fff;
-  border: 0;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
+  padding: 10px 18px;
+  background: var(--gold);
+  color: #fff;
+  border: 0;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .btn-danger { background: var(--red); color: white; }
@@ -221,80 +221,83 @@ input, select, textarea {
 .table-responsive { overflow-x: auto; }
 
 table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-  background: var(--card);
-  border-radius: 12px;
-  font-size: 13px;
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+  background: var(--card);
+  border-radius: 12px;
+  font-size: 13px;
 }
 
 th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 th { background: var(--input-bg); color: var(--gold); }
 
 .modal {
-  display: none;
-  position: fixed;
-  top:0; left:0; width:100%; height:100%;
-  background: rgba(0,0,0,0.8);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  display: none;
+  position: fixed;
+  top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-  background: #fff;
-  color: #000;
-  padding: 25px;
-  border-radius: 16px;
-  width: 420px;
-  text-align: center;
-  max-height: 90vh;
-  overflow-y: auto;
-}
+  background: #fff;
+  color: #000;
+  padding: 25px;
+  border-radius: 16px;
+  width: 420px;
+  text-align: center;
+  max-height: 90vh;
+  overflow-y: auto;
+}// 🔴 CLOUDINARY CONFIGURATION
+  const CLOUDINARY_CLOUD_NAME = "iftuabc";       
+  const CLOUDINARY_UPLOAD_PRESET = "iftuabc";
 
 .img-preview {
-  width: 45px;
-  height: 45px;
-  object-fit: cover;
-  border-radius: 8px;
-  border: 1px solid var(--border);
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
 }
 
 .badge-open {
-  background: var(--green);
-  color: white;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 11px;
+  background: var(--green);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 11px;
 }
 
-.badge-closed {
-  background: var(--red);
-  color: white;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-size: 11px;
+/* Uploading Indicator Style */
+#uploadSpinner {
+  display: none;
+  font-size: 12px;
+  color: var(--gold);
+  margin-top: 5px;
+  font-weight: bold;
 }
 
 @media print {
-  body * { visibility: hidden; }
-  #printableReceipt, #printableReceipt * { visibility: visible; }
-  #printableReceipt { 
-    position: absolute; 
-    left: 0; 
-    top: 0; 
-    width: 100%; 
-    padding: 10px;
-    color: #000 !important;
-  }
-  .no-print { display: none !important; }
+  body * { visibility: hidden; }
+  #printableReceipt, #printableReceipt * { visibility: visible; }
+  #printableReceipt { 
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    padding: 10px;
+    color: #000 !important;
+  }
+  .no-print { display: none !important; }
 }
 </style>
 </head>
@@ -303,825 +306,592 @@ th { background: var(--input-bg); color: var(--gold); }
 
 <!-- BRANCH LOCK SCREEN -->
 <div id="branchLockOverlay" class="lock-overlay">
-  <div class="lock-card">
-    <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
-    <h2 id="lockTitle">Ginchi Branch (Main)</h2>
-    <p style="color:var(--muted); font-size: 13px;" id="lblLockSub">Formii kana fayyadamuu PIN galchaa.</p>
+  <div class="lock-card">
+    <div style="font-size: 40px; margin-bottom: 10px;">🔒</div>
+    <h2 id="lockTitle">Ginchi Branch (Main)</h2>
+    <p style="color:var(--muted); font-size: 13px;" id="lblLockSub">Formii kana fayyadamuu PIN galchaa.</p>
 
-    <div class="form-group" style="text-align: left;">
-      <label id="lblSelectBranch">Select Branch / Damee Filadhaa:</label>
-      <select id="loginBranchSelect" onchange="updateLockTitle()"></select>
-    </div>
+    <div class="form-group" style="text-align: left;">
+      <label id="lblSelectBranch">Select Branch / Damee Filadhaa:</label>
+      <select id="loginBranchSelect" onchange="updateLockTitle()"></select>
+    </div>
 
-    <div class="form-group">
-      <input type="password" id="branchPinInput" placeholder="PIN" value="4321" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 5px;">
-    </div>
+    <div class="form-group">
+      <input type="password" id="branchPinInput" placeholder="PIN" value="4321" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 5px;">
+    </div>
 
-    <button class="btn" style="width: 100%; margin-top: 10px;" id="btnLogin" onclick="verifyBranchPin()">Seeni / Login</button>
+    <button class="btn" style="width: 100%; margin-top: 10px;" id="btnLogin" onclick="verifyBranchPin()">Seeni / Login</button>
 
-    <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px;">
-      <a href="#" onclick="openForgetPinModal()" style="color: var(--gold); text-decoration: none;">🔑 Forget PIN?</a>
-      <a href="#" onclick="openChangePinModal()" style="color: var(--muted); text-decoration: none;">🔐 Change PIN</a>
-    </div>
-  </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px;">
+      <a href="#" onclick="openForgetPinModal()" style="color: var(--gold); text-decoration: none;">🔑 Forget PIN?</a>
+      <a href="#" onclick="openChangePinModal()" style="color: var(--muted); text-decoration: none;">🔐 Change PIN</a>
+    </div>
+  </div>
 </div>
 
 <!-- TOP NAVIGATION BAR -->
 <div class="top-bar">
-  <div class="brand">
-    🏢 IFTUU FURNITURE
-    <span id="activeBranchTag" style="font-size: 12px; color: var(--gold); background: var(--input-bg); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border);">[ Ginchi Branch ]</span>
-    <span id="branchStatusBadge" class="badge-open">OPEN</span>
-  </div>
+  <div class="brand">
+    🏢 IFTUU FURNITURE
+    <span id="activeBranchTag" style="font-size: 12px; color: var(--gold); background: var(--input-bg); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border);">[ Ginchi Branch ]</span>
+    <span id="branchStatusBadge" class="badge-open">OPEN</span>
+  </div>
 
-  <div class="nav-container">
-    <!-- BACK ARROW BUTTON -->
-    <button class="back-btn" onclick="goBack()" title="Back / የኋሊት">⬅️ Back</button>
+  <div class="nav-container">
+    <button class="back-btn" onclick="goBack()" title="Back / የኋሊት">⬅️ Back</button>
 
-    <select id="langSelect" onchange="changeLanguage()" style="padding:6px 10px; border-radius:8px; background:var(--input-bg); color:var(--gold); font-weight:bold; border:1px solid var(--gold); cursor:pointer;">
-      <option value="om">🌐 Afaan Oromoo</option>
-      <option value="am">🌐 አማርኛ</option>
-      <option value="en">🌐 English</option>
-    </select>
+    <select id="langSelect" onchange="changeLanguage()" style="padding:6px 10px; border-radius:8px; background:var(--input-bg); color:var(--gold); font-weight:bold; border:1px solid var(--gold); cursor:pointer;">
+      <option value="om">🌐 Afaan Oromoo</option>
+      <option value="am">🌐 አማርኛ</option>
+      <option value="en">🌐 English</option>
+    </select>
 
-    <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleNavDropdown()">
-        📑 <span id="lblMenuBtn">Menus</span> <span style="font-size: 10px;">▼</span>
-      </button>
-      <div id="navDropdown" class="dropdown-content">
-        <button id="menu1" class="active" onclick="switchTab('tab-pos')">🛒 1. <span id="lblNavReg">Galmee Meeshaa</span></button>
-        <button id="menu2" onclick="switchTab('tab-sales')">📋 2. <span id="lblNavSales">Galmee Gurgurtaa</span></button>
-        <button id="menu3" onclick="switchTab('tab-qr')">🔍 3. QR Scanner</button>
-        <button onclick="lockSystem()" style="color: var(--red);">🔒 <span id="lblNavLock">Switch Branch</span></button>
-      </div>
-    </div>
+    <div class="dropdown">
+      <button class="dropdown-btn" onclick="toggleNavDropdown()">
+        📑 <span id="lblMenuBtn">Menus</span> <span style="font-size: 10px;">▼</span>
+      </button>
+      <div id="navDropdown" class="dropdown-content">
+        <button id="menu1" class="active" onclick="switchTab('tab-pos')">🛒 1. <span id="lblNavReg">Galmee Meeshaa</span></button>
+        <button id="menu2" onclick="switchTab('tab-sales')">📋 2. <span id="lblNavSales">Galmee Gurgurtaa</span></button>
+        <button id="menu3" onclick="switchTab('tab-qr')">🔍 3. QR Scanner</button>
+        <button id="menu4" onclick="switchTab('tab-settings')">⚙️ 4. <span id="lblNavSettings">Settings</span></button>
+        <button onclick="lockSystem()" style="color: var(--red);">🔒 <span id="lblNavLock">Switch Branch</span></button>
+      </div>
+    </div>
 
-    <button class="btn btn-sm" onclick="toggleTheme()" style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text);">☀️ Theme</button>
-  </div>
+    <button class="btn btn-sm" onclick="toggleTheme()" style="background: var(--input-bg); border: 1px solid var(--border); color: var(--text);">☀️ Theme</button>
+  </div>
 </div>
 
 <!-- MAIN CONTENT -->
 <div class="main-content">
 
-  <!-- TAB 1: REGISTER ITEM -->
-  <div id="tab-pos" class="section active">
-    <h1 id="hdrReg">📝 Galmee Meeshaa Haarawaa</h1>
+  <!-- TAB 1: REGISTER ITEM -->
+  <div id="tab-pos" class="section active">
+    <h1 id="hdrReg">📝 Galmee Meeshaa Haarawaa</h1>
 
-    <div style="max-width: 750px; background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border);">
-      <div class="form-grid">
-        <div class="form-group">
-          <label id="lblCustomer">Maqaa Maamilchaa</label>
-          <input id="maqa" placeholder="Full Name">
-        </div>
-        <div class="form-group">
-          <label id="lblItemType">Gosa Meeshaa</label>
-          <input id="gosaMeeshaa" placeholder="Sofaa, Siree...">
-        </div>
-        <div class="form-group">
-          <label id="lblColor">Haluu / Color</label>
-          <input id="haluu" placeholder="Diimaa, Gurraacha...">
-        </div>
-        <div class="form-group">
-          <label id="lblTotalPrice">Gati Total (ETB)</label>
-          <input id="gati" type="number" oninput="calculateAftee()">
-        </div>
-        <div class="form-group">
-          <label id="lblDeposit">Qabdu / Deposit (ETB)</label>
-          <input id="qabdu" type="number" oninput="calculateAftee()">
-        </div>
-        <div class="form-group">
-          <label id="lblBalance">Aftee / Balance (ETB)</label>
-          <input id="aftee" type="number" readonly style="color:var(--red); font-weight:bold;">
-        </div>
-        <div class="form-group">
-          <label id="lblCountry" style="color:var(--gold); font-weight:bold;">🌐 Biyya (Country)</label>
-          <input id="biyya" placeholder="Ethiopia, Kenya, UAE...">
-        </div>
-        <div class="form-group">
-          <label id="lblAddress">Bakka Itti Ergamuu / Address</label>
-          <input id="bakkaIttiDemmu" placeholder="Magaalaa / Delivery Location">
-        </div>
-        <div class="form-group">
-          <label id="lblPhone">Lakk Bilbilaa / Phone</label>
-          <input id="lakkBil" placeholder="09...">
-        </div>
-        <div class="form-group">
-          <label id="lblDeliveryDate" style="color:var(--green); font-weight:bold;">📅 Guyyaa Beellamaa (Delivery Date)</label>
-          <input id="guyyaaBelamaa" type="date">
-        </div>
-        <div class="form-group full-width">
-          <label id="lblStatus">Delivery Status</label>
-          <select id="kanBae">
-            <option value="Pending" selected id="optPending">Pending (Hin Ergamne)</option>
-            <option value="Delivered" id="optDelivered">Delivered (Ergameera)</option>
-          </select>
-        </div>
-        <div class="form-group full-width">
-          <label id="lblPhoto">Suuraa Meeshaa (Photo)</label>
-          <input type="file" id="itemPhoto" accept="image/*" onchange="previewAndCompressImage(event)">
-          <img id="imgPreview" style="display:none; width: 80px; height: 80px; margin-top: 10px; border-radius:8px; object-fit:cover;">
-        </div>
-      </div>
-      <button class="btn" style="width:100%; margin-top:15px;" id="btnSave" onclick="saveRecord()">💾 Galmeessi & Print</button>
-    </div>
-  </div>
+    <div style="max-width: 750px; background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border);">
+      <div class="form-grid">
+        <div class="form-group">
+          <label id="lblCustomer">Maqaa Maamilchaa</label>
+          <input id="maqa" placeholder="Full Name">
+        </div>
+        <div class="form-group">
+          <label id="lblItemType">Gosa Meeshaa</label>
+          <input id="gosaMeeshaa" placeholder="Sofaa, Siree...">
+        </div>
+        <div class="form-group">
+          <label id="lblColor">Haluu / Color</label>
+          <input id="haluu" placeholder="Diimaa, Gurraacha...">
+        </div>
+        <div class="form-group">
+          <label id="lblTotalPrice">Gati Total (ETB)</label>
+          <input id="gati" type="number" oninput="calculateAftee()">
+        </div>
+        <div class="form-group">
+          <label id="lblDeposit">Qabdu / Deposit (ETB)</label>
+          <input id="qabdu" type="number" oninput="calculateAftee()">
+        </div>
+        <div class="form-group">
+          <label id="lblBalance">Aftee / Balance (ETB)</label>
+          <input id="aftee" type="number" readonly style="color:var(--red); font-weight:bold;">
+        </div>
+        <div class="form-group">
+          <label id="lblCountry" style="color:var(--gold); font-weight:bold;">🌐 Biyya (Country)</label>
+          <input id="biyya" placeholder="Ethiopia, Kenya, UAE...">
+        </div>
+        <div class="form-group">
+          <label id="lblAddress">Bakka Itti Ergamuu / Address</label>
+          <input id="bakkaIttiDemmu" placeholder="Magaalaa / Delivery Location">
+        </div>
+        <div class="form-group">
+          <label id="lblPhone">Lakk Bilbilaa / Phone</label>
+          <input id="lakkBil" placeholder="09...">
+        </div>
+        <div class="form-group">
+          <label id="lblDeliveryDate" style="color:var(--green); font-weight:bold;">📅 Guyyaa Beellamaa (Delivery Date)</label>
+          <input id="guyyaaBelamaa" type="date">
+        </div>
+        <div class="form-group full-width">
+          <label id="lblStatus">Delivery Status</label>
+          <select id="kanBae">
+            <option value="Pending" selected id="optPending">Pending (Hin Ergamne)</option>
+            <option value="Delivered" id="optDelivered">Delivered (Ergameera)</option>
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label id="lblPhoto">Suuraa Meeshaa (Cloudinary Upload)</label>
+          <input type="file" id="itemPhoto" accept="image/*" onchange="previewAndCompressImage(event)">
+          <div id="uploadSpinner">⏳ Suuraan Cloudinary irratti ol-fe'amaa jira...</div>
+          <img id="imgPreview" style="display:none; width: 80px; height: 80px; margin-top: 10px; border-radius:8px; object-fit:cover;">
+        </div>
+      </div>
+      <button class="btn" style="width:100%; margin-top:15px;" id="btnSave" onclick="saveRecord()">💾 Galmeessi & Print</button>
+    </div>
+  </div>
 
-  <!-- TAB 2: SALES TABLE -->
-  <div id="tab-sales" class="section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-      <h1 id="hdrSales">📋 Galmee Gurgurtaa</h1>
-      <div style="display: flex; gap: 10px;">
-        <button id="btnToggleBranchStatus" class="btn btn-sm btn-warning" onclick="toggleCurrentBranchStatus()" style="display: none;">🔒 Close / Open Branch</button>
-        <button id="btnAddBranch" class="btn btn-sm" onclick="addNewBranch()" style="display: none;">➕ Add New Branch</button>
-      </div>
-    </div>
+  <!-- TAB 2: SALES TABLE -->
+  <div id="tab-sales" class="section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+      <h1 id="hdrSales">📋 Galmee Gurgurtaa</h1>
+    </div>
 
-    <div style="background: var(--card); padding: 18px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 20px;">
-      <div style="display: flex; gap: 15px; align-items: center; justify-content: space-between;">
-        <div style="flex: 1;">
-          <label style="font-weight:bold; color:var(--gold);">🎯 Branch Filter:</label>
-          <select id="branchFilter" onchange="filterSalesTable()">
-            <option value="MY_BRANCH">🏢 My Current Branch</option>
-            <option value="ALL" id="opt_all_branches" disabled>🔓 All Branches (Main Owner)</option>
-          </select>
-        </div>
-        <div style="flex: 2;">
-          <label style="font-weight:bold;" id="lblSearch">🔍 Search / Barbaadi:</label>
-          <input id="searchInput" type="text" placeholder="Search..." onkeyup="filterSalesTable()">
-        </div>
-      </div>
-    </div>
+    <!-- BRANCH FILTER & SEARCH BAR WITH ADD/DELETE BRANCH BUTTONS -->
+    <div style="background: var(--card); padding: 18px; border-radius: 14px; border: 1px solid var(--border); margin-bottom: 20px;">
+      <div style="display: flex; gap: 15px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap;">
+        
+        <div style="flex: 2; min-width: 320px;">
+          <label style="font-weight:bold; color:var(--gold);">🎯 Branch Filter:</label>
+          <div style="display: flex; gap: 8px; margin-top: 5px;">
+            <select id="branchFilter" onchange="filterSalesTable()" style="flex:1;">
+              <option value="MY_BRANCH">🏢 My Current Branch</option>
+              <option value="ALL" id="opt_all_branches" disabled>🔓 All Branches (Main Owner)</option>
+            </select>
+            <button class="btn btn-sm btn-success" onclick="addNewBranchWithPin()" title="Add New Branch (Main Branch Only)">➕ Add Branch</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSelectedBranchWithPin()" title="Delete Branch (Main Branch Only)">🗑️ Delete Branch</button>
+          </div>
+        </div>
 
-    <div class="table-responsive">
-      <table>
-        <thead>
-          <tr>
-            <th>Photo</th>
-            <th>#</th>
-            <th>Branch</th>
-            <th id="thName">Name</th>
-            <th id="thItem">Item</th>
-            <th id="thPrice">Price</th>
-            <th id="thDeposit">Deposit</th>
-            <th id="thBalance">Balance</th>
-            <th id="thCountry">Country</th>
-            <th id="thAddress">Address</th>
-            <th id="thPhone">Phone</th>
-            <th id="thDate">Delivery Date</th>
-            <th id="thStatus">Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="salesTableBody"></tbody>
-      </table>
-    </div>
-  </div>
+        <div style="flex: 2; min-width: 250px;">
+          <label style="font-weight:bold;" id="lblSearch">🔍 Search (ID, Name, Item, Address):</label>
+          <input id="searchInput" type="text" placeholder="Search ID, Name, Place..." onkeyup="filterSalesTable()" style="margin-top: 5px;">
+        </div>
 
-  <!-- TAB 3: QR SCANNER -->
-  <div id="tab-qr" class="section">
-    <h1>🔍 QR Code Scanner</h1>
-    <p style="color:var(--muted);">Scan any printed receipt QR code to quickly view details.</p>
-    
-    <div style="max-width: 420px; margin: 0 auto; background: var(--card); padding:20px; border-radius:16px; border: 1px solid var(--border); text-align: center;">
-      <div id="reader" style="width:100%; min-height: 280px; background:#000; border-radius: 12px; overflow: hidden;"></div>
-      <button class="btn btn-sm" style="margin-top: 15px;" onclick="restartQrScanner()">🔄 Restart Camera</button>
-    </div>
-  </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Photo</th>
+            <th>#</th>
+            <th>ID</th>
+            <th>Branch</th>
+            <th id="thName">Name</th>
+            <th id="thItem">Item</th>
+            <th id="thPrice">Price</th>
+            <th id="thDeposit">Deposit</th>
+            <th id="thBalance">Balance</th>
+            <th id="thCountry">Country</th>
+            <th id="thAddress">Address</th>
+            <th id="thPhone">Phone</th>
+            <th id="thDate">Delivery Date</th>
+            <th id="thStatus">Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="salesTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 3: QR SCANNER -->
+  <div id="tab-qr" class="section">
+    <h1>🔍 QR Code Scanner</h1>
+    <p style="color:var(--muted);">Scan any printed receipt QR code to quickly view details.</p>
+    
+    <div style="max-width: 420px; margin: 0 auto; background: var(--card); padding:20px; border-radius:16px; border: 1px solid var(--border); text-align: center;">
+      <div id="reader" style="width:100%; min-height: 280px; background:#000; border-radius: 12px; overflow: hidden;"></div>
+      <button class="btn btn-sm" style="margin-top: 15px;" onclick="restartQrScanner()">🔄 Restart Camera</button>
+    </div>
+  </div>
+
+  <!-- TAB 4: SETTINGS & RECYCLE BIN -->
+  <div id="tab-settings" class="section">
+    <h1 id="hdrSettings">⚙️ System Settings & Recycle Bin</h1>
+    
+    <div style="max-width: 850px; background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 20px;">
+      <h3 style="color:var(--gold); border-bottom:1px solid var(--border); padding-bottom:8px;">🔒 Security & Branch PINs</h3>
+      <p style="font-size:12px; color:var(--muted);">Manage branch security and PIN configuration.</p>
+      <button class="btn btn-warning btn-sm" onclick="openChangePinModal()">🔑 Change Branch PIN</button>
+    </div>
+
+    <!-- RECYCLE BIN SECTION -->
+    <div style="max-width: 850px; background: var(--card); padding: 25px; border-radius: 16px; border: 1px solid var(--border);">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+        <h3 style="color:var(--red); margin: 0;">🗑️ Recycle Bin (Trash Box)</h3>
+        <button class="btn btn-danger btn-sm" onclick="emptyRecycleBin()">🧹 Empty All Trash</button>
+      </div>
+      <p style="font-size:12px; color:var(--muted); margin-top: 8px;">የተሰረዙ መዝገቦች እዚህ ይቀመጣሉ:: ወደነበሩበት ለመመለስ "Restore" የሚለውን ይጫኑ::</p>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Branch</th>
+              <th>Name</th>
+              <th>Item</th>
+              <th>Price</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="trashTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <!-- RECEIPT MODAL -->
 <div id="receiptModal" class="modal">
-  <div class="modal-content" id="printableReceipt">
-    <h2 style="margin:0; color:#000;">IFTUU FURNITURE</h2>
-    <p style="font-size:12px; margin-top:2px; margin-bottom: 10px;">Official Receipt / Nagahee</p>
-    
-    <img id="receiptImage" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; margin: 0 auto 10px auto;" src="" alt="Photo">
-    
-    <div id="receiptDetails" style="text-align:left; font-size:13px; line-height: 1.6; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0;"></div>
-    
-    <div id="qrcode" style="display:flex; justify-content:center; margin: 15px 0;"></div>
-    
-    <button class="btn no-print" onclick="window.print()" style="width:100%; margin-top:10px;">🖨️ Maxxansi / Print</button>
-    <button class="btn btn-danger btn-sm no-print" onclick="closeModal()" style="width:100%; margin-top:5px;">Cufi / Close</button>
-  </div>
+  <div class="modal-content" id="printableReceipt">
+    <h2 style="margin:0; color:#000;">IFTUU FURNITURE</h2>
+    <p style="font-size:12px; margin-top:2px; margin-bottom: 10px;">Official Receipt / Nagahee</p>
+    
+    <img id="receiptImage" style="width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc; margin: 0 auto 10px auto;" src="" alt="Photo">
+    
+    <div id="receiptDetails" style="text-align:left; font-size:13px; line-height: 1.6; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 10px 0;"></div>
+    
+    <div id="qrcode" style="display:flex; justify-content:center; margin: 15px 0;"></div>
+    
+    <button class="btn no-print" onclick="window.print()" style="width:100%; margin-top:10px;">🖨️ Maxxansi / Print</button>
+    <button class="btn btn-danger btn-sm no-print" onclick="closeModal()" style="width:100%; margin-top:5px;">Cufi / Close</button>
+  </div>
 </div>
 
 <!-- PIN RECOVERY MODAL -->
 <div id="pinModal" class="modal">
-  <div class="modal-content" style="background: var(--card); color: var(--text); border: 1px solid var(--border); text-align: left;">
-    <h3 style="color:var(--gold);">Forget PIN Recovery</h3>
-    <div>
-      <p style="font-size:12px; color:var(--muted);">Enter master recovery keyword to reset PIN.</p>
-      <div class="form-group">
-        <label>Secret Recovery Keyword:</label>
-        <input id="recoveryKeyInput" placeholder="Enter Keyword">
-      </div>
-      <div class="form-group">
-        <label>Enter New PIN:</label>
-        <input type="password" id="newPinInput" maxlength="6">
-      </div>
-      <button class="btn" style="width:100%;" onclick="resetPinWithRecovery()">Reset PIN</button>
-    </div>
-    <button class="btn btn-danger btn-sm" style="width:100%; margin-top:10px;" onclick="closePinModal()">Cancel</button>
-  </div>
+  <div class="modal-content" style="background: var(--card); color: var(--text); border: 1px solid var(--border); text-align: left;">
+    <h3 style="color:var(--gold);">Forget PIN Recovery</h3>
+    <div>
+      <p style="font-size:12px; color:var(--muted);">Enter master recovery keyword to reset PIN.</p>
+      <div class="form-group">
+        <label>Secret Recovery Keyword:</label>
+        <input id="recoveryKeyInput" placeholder="Enter Keyword">
+      </div>
+      <div class="form-group">
+        <label>Enter New PIN:</label>
+        <input type="password" id="newPinInput" maxlength="6">
+      </div>
+      <button class="btn" style="width:100%;" onclick="resetPinWithRecovery()">Reset PIN</button>
+    </div>
+    <button class="btn btn-danger btn-sm" style="width:100%; margin-top:10px;" onclick="closePinModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- CHANGE PIN MODAL -->
+<div id="changePinModal" class="modal">
+  <div class="modal-content" style="background: var(--card); color: var(--text); border: 1px solid var(--border); text-align: left;">
+    <h3 style="color:var(--gold);">🔐 Change Branch PIN</h3>
+    <div class="form-group">
+      <label>Select Target Branch:</label>
+      <select id="changePinBranchSelect"></select>
+    </div>
+    <div class="form-group">
+      <label>Main Branch PIN (Authorization):</label>
+      <input type="password" id="mainBranchAuthPinInput" placeholder="Ginchi Branch PIN" maxlength="6">
+    </div>
+    <div class="form-group">
+      <label>New PIN (for selected branch):</label>
+      <input type="password" id="changeNewPinInput" placeholder="Enter New PIN" maxlength="6">
+    </div>
+    <button class="btn" style="width:100%;" onclick="submitChangePin()">Update PIN</button>
+    <button class="btn btn-danger btn-sm" style="width:100%; margin-top:10px;" onclick="closeChangePinModal()">Cancel</button>
+  </div>
 </div>
 
 <script>
-  const MAIN_BRANCH_NAME = "Ginchi Branch";
-  let pageHistory = ['tab-pos']; // Navigation History Stack
-  
-  let branchesList = JSON.parse(localStorage.getItem("IFTU_BRANCH_LIST")) || [
-    "Ginchi Branch",
-    "Hawassa Branch",
-    "Addis Ababa Branch",
-    "Adama Branch",
-    "Jimma Branch"
-  ];
+  // 🔴 CLOUDINARY CONFIGURATION (Odeeffannoo kee asitti bakka buusi)
+  const CLOUDINARY_CLOUD_NAME = "YOUR_CLOUD_NAME";       // e.g. "dxy123abc"
+  const CLOUDINARY_UPLOAD_PRESET = "YOUR_UPLOAD_PRESET"; // e.g. "iftu_preset"
 
-  let branchPINs = JSON.parse(localStorage.getItem("IFTU_BRANCH_PINS")) || {
-    "Ginchi Branch": "4321",
-    "Hawassa Branch": "4321",
-    "Addis Ababa Branch": "4321",
-    "Adama Branch": "4321",
-    "Jimma Branch": "4321"
-  };
+  const MAIN_BRANCH_NAME = "Ginchi Branch";
+  let pageHistory = ['tab-pos'];
 
-  let branchStatus = JSON.parse(localStorage.getItem("IFTU_BRANCH_STATUS")) || {
-    "Ginchi Branch": "OPEN",
-    "Hawassa Branch": "OPEN",
-    "Addis Ababa Branch": "OPEN",
-    "Adama Branch": "OPEN",
-    "Jimma Branch": "OPEN"
-  };
+  let branchesList = JSON.parse(localStorage.getItem("IFTU_BRANCH_LIST")) || [
+    "Ginchi Branch",
+    "Hawassa Branch",
+    "Addis Ababa Branch",
+    "Adama Branch",
+    "Jimma Branch"
+  ];
 
-  const RECOVERY_KEY = "IFTU2026";
-  let activeBranch = "";
-  let isMainOwner = false;
-  let allRecords = JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [];
-  let base64Image = "";
-  let html5QrCode = null;
+  let branchPINs = JSON.parse(localStorage.getItem("IFTU_BRANCH_PINS")) || {
+    "Ginchi Branch": "4321",
+    "Hawassa Branch": "4321",
+    "Addis Ababa Branch": "4321",
+    "Adama Branch": "4321",
+    "Jimma Branch": "4321"
+  };
 
-  const translations = {
-    om: {
-      lblMenuBtn: "Tarree",
-      lblNavReg: "Galmee Meeshaa",
-      lblNavSales: "Galmee Gurgurtaa",
-      lblNavLock: "Damee Jijjiiri",
-      lblLockSub: "Formii kana fayyadamuu PIN galchaa.",
-      lblSelectBranch: "Damee Filadhaa:",
-      btnLogin: "Seeni",
-      hdrReg: "📝 Galmee Meeshaa Haarawaa",
-      lblCustomer: "Maqaa Maamilchaa",
-      lblItemType: "Gosa Meeshaa",
-      lblColor: "Haluu (Color)",
-      lblTotalPrice: "Gati Total (ETB)",
-      lblDeposit: "Qabdu (ETB)",
-      lblBalance: "Aftee (ETB)",
-      lblCountry: "🌐 Biyya (Country)",
-      lblAddress: "Bakka Itti Ergamuu",
-      lblPhone: "Lakk Bilbilaa",
-      lblDeliveryDate: "📅 Guyyaa Beellamaa",
-      lblStatus: "Haala Ergaa (Delivery Status)",
-      lblPhoto: "Suuraa Meeshaa",
-      btnSave: "💾 Galmeessi & Print",
-      hdrSales: "📋 Galmee Gurgurtaa",
-      lblSearch: "🔍 Barbaadi:",
-      thName: "Maqaa",
-      thItem: "Gosa",
-      thPrice: "Gati Total",
-      thDeposit: "Qabdu",
-      thBalance: "Aftee",
-      thCountry: "Biyya",
-      thAddress: "Bakka",
-      thPhone: "Bilbila",
-      thDate: "Guyyaa Beellamaa",
-      thStatus: "Haala Ergaa"
-    },
-    am: {
-      lblMenuBtn: "ሜኑዎች",
-      lblNavReg: "ዕቃ መመዝገቢያ",
-      lblNavSales: "የሽያጭ መዝገብ",
-      lblNavLock: "ቅርንጫፍ ይቀይሩ",
-      lblLockSub: "ይህንን ቅጽ ለመጠቀም PIN ያስገቡ።",
-      lblSelectBranch: "ቅርንጫፍ ይምረጡ:",
-      btnLogin: "ግባ",
-      hdrReg: "📝 አዲስ ዕቃ መመዝገቢያ",
-      lblCustomer: "የደንበኛ ስም",
-      lblItemType: "የዕቃው ዓይነት",
-      lblColor: "ቀለም",
-      lblTotalPrice: "ጠቅላላ ዋጋ (ETB)",
-      lblDeposit: "ቅድመ ክፍያ (ETB)",
-      lblBalance: "ቀሪ ሂሳብ (ETB)",
-      lblCountry: "🌐 ሀገር (Country)",
-      lblAddress: "የመላኪያ ቦታ",
-      lblPhone: "ስልክ ቁጥር",
-      lblDeliveryDate: "📅 የተቀጠረበት ቀን",
-      lblStatus: "የመላክ ሁኔታ (Status)",
-      lblPhoto: "የዕቃው ፎቶ",
-      btnSave: "💾 መዝግብ እና አትም",
-      hdrSales: "📋 የሽያጭ መዝገብ",
-      lblSearch: "🔍 ፈልግ:",
-      thName: "ስም",
-      thItem: "ዓይነት",
-      thPrice: "ጠቅላላ ዋጋ",
-      thDeposit: "ቅድመ ክፍያ",
-      thBalance: "ቀሪ ሂሳብ",
-      thCountry: "ሀገር",
-      thAddress: "ቦታ",
-      thPhone: "ስልክ",
-      thDate: "የተቀጠረበት ቀን",
-      thStatus: "ሁኔታ"
-    },
-    en: {
-      lblMenuBtn: "Menus",
-      lblNavReg: "Register Item",
-      lblNavSales: "Sales Records",
-      lblNavLock: "Switch Branch",
-      lblLockSub: "Enter PIN to access form.",
-      lblSelectBranch: "Select Branch:",
-      btnLogin: "Login",
-      hdrReg: "📝 Register New Item",
-      lblCustomer: "Customer Name",
-      lblItemType: "Item Type",
-      lblColor: "Color",
-      lblTotalPrice: "Total Price (ETB)",
-      lblDeposit: "Deposit (ETB)",
-      lblBalance: "Balance (ETB)",
-      lblCountry: "🌐 Country",
-      lblAddress: "Delivery Address",
-      lblPhone: "Phone Number",
-      lblDeliveryDate: "📅 Delivery Date",
-      lblStatus: "Delivery Status",
-      lblPhoto: "Item Photo",
-      btnSave: "💾 Save & Print Receipt",
-      hdrSales: "📋 Sales Records",
-      lblSearch: "🔍 Search:",
-      thName: "Customer Name",
-      thItem: "Item Type",
-      thPrice: "Total Price",
-      thDeposit: "Deposit",
-      thBalance: "Balance",
-      thCountry: "Country",
-      thAddress: "Address",
-      thPhone: "Phone",
-      thDate: "Delivery Date",
-      thStatus: "Status"
-    }
-  };
+  const RECOVERY_KEY = "IFTU2026";
+  let activeBranch = "";
+  let isMainOwner = false;
+  let currentEditingId = null;
+  
+  // Data Storage
+  let allRecords = JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [];
+  let trashRecords = JSON.parse(localStorage.getItem("IFTU_TRASH_RECORDS")) || [];
+  
+  let base64Image = ""; // Now holds Cloudinary image URL
+  let html5QrCode = null;
 
-  function changeLanguage() {
-    const lang = document.getElementById("langSelect").value;
-    const dict = translations[lang];
+  const translations = {
+    om: {
+      lblMenuBtn: "Tarree",
+      lblNavReg: "Galmee Meeshaa",
+      lblNavSales: "Galmee Gurgurtaa",
+      lblNavSettings: "Settings",
+      lblNavLock: "Damee Jijjiiri",
+      lblLockSub: "Formii kana fayyadamuu PIN galchaa.",
+      lblSelectBranch: "Damee Filadhaa:",
+      btnLogin: "Seeni",
+      hdrReg: "📝 Galmee Meeshaa Haarawaa",
+      lblCustomer: "Maqaa Maamilchaa",
+      lblItemType: "Gosa Meeshaa",
+      lblColor: "Haluu (Color)",
+      lblTotalPrice: "Gati Total (ETB)",
+      lblDeposit: "Qabdu (ETB)",
+      lblBalance: "Aftee (ETB)",
+      lblCountry: "🌐 Biyya (Country)",
+      lblAddress: "Bakka Itti Ergamuu",
+      lblPhone: "Lakk Bilbilaa",
+      lblDeliveryDate: "📅 Guyyaa Beellamaa",
+      lblStatus: "Haala Ergaa (Delivery Status)",
+      lblPhoto: "Suuraa Meeshaa",
+      btnSave: "💾 Galmeessi & Print",
+      hdrSales: "📋 Galmee Gurgurtaa",
+      hdrSettings: "⚙️ System Settings & Recycle Bin",
+      lblSearch: "🔍 Barbaadi:",
+      thName: "Maqaa",
+      thItem: "Gosa",
+      thPrice: "Gati Total",
+      thDeposit: "Qabdu",
+      thBalance: "Aftee",
+      thCountry: "Biyya",
+      thAddress: "Bakka",
+      thPhone: "Bilbila",
+      thDate: "Guyyaa Beellamaa",
+      thStatus: "Haala Ergaa"
+    },
+    am: {
+      lblMenuBtn: "ሜኑዎች",
+      lblNavReg: "ዕቃ መመዝገቢያ",
+      lblNavSales: "የሽያጭ መዝገብ",
+      lblNavSettings: "ማስተካካያ (Settings)",
+      lblNavLock: "ቅርንጫፍ ይቀይሩ",
+      lblLockSub: "ይህንን ቅጽ ለመጠቀም PIN ያስገቡ።",
+      lblSelectBranch: "ቅርንጫፍ ይምረጡ:",
+      btnLogin: "ግባ",
+      hdrReg: "📝 አዲስ ዕቃ መመዝገቢያ",
+      lblCustomer: "የደንበኛ ስም",
+      lblItemType: "የዕቃው ዓይነት",
+      lblColor: "ቀለም",
+      lblTotalPrice: "ጠቅላላ ዋጋ (ETB)",
+      lblDeposit: "ቅድመ ክፍያ (ETB)",
+      lblBalance: "ቀሪ ሂሳብ (ETB)",
+      lblCountry: "🌐 ሀገር (Country)",
+      lblAddress: "የመላኪያ ቦታ",
+      lblPhone: "ስልክ ቁጥር",
+      lblDeliveryDate: "📅 የተቀጠረበት ቀን",
+      lblStatus: "የመላክ ሁኔታ (Status)",
+      lblPhoto: "የዕቃው ፎቶ",
+      btnSave: "💾 መዝግብ እና አትም",
+      hdrSales: "📋 የሽያጭ መዝገብ",
+      hdrSettings: "⚙️ ሲስተም ማስተካከያ & Recycle Bin",
+      lblSearch: "🔍 ፈልግ:",
+      thName: "ስም",
+      thItem: "ዓይነት",
+      thPrice: "ጠcument.createElement("option");
+        optPin.value = b;
+        optPin.textContent = `${b}` + (b === MAIN_BRANCH_NAME ? " (Main)" : "");
+        changePinSel.appendChild(optPin);
+      }
 
-    for (let key in dict) {
-      const el = document.getElementById(key);
-      if (el) el.innerText = dict[key];
-    }
-  }
+      if (filterSel) {
+        const filterOpt = document.createElement("option");
+        filterOpt.value = b;
+        filterOpt.textContent = b;
+        filterSel.appendChild(filterOpt);
+      }
+    });
 
-  function populateBranchDropdowns() {
-    const loginSel = document.getElementById("loginBranchSelect");
-    const filterSel = document.getElementById("branchFilter");
+    if (filterSel && currentFilterVal && Array.from(filterSel.options).some(o => o.value === currentFilterVal)) {
+      filterSel.value = currentFilterVal;
+    }
+  }
 
-    loginSel.innerHTML = "";
-    filterSel.innerHTML = `
-      <option value="MY_BRANCH">🏢 My Current Branch</option>
-      <option value="ALL" id="opt_all_branches" ${isMainOwner ? '' : 'disabled'}>🔓 All Branches (Main Owner)</option>
-    `;
+  function updateLockTitle() {
+    const selected = document.getElementById("loginBranchSelect").value;
+    document.getElementById("lockTitle").innerText = selected;
+  }
 
-    branchesList.forEach(b => {
-      const opt = document.createElement("option");
-      opt.value = b;
-      const status = branchStatus[b] || "OPEN";
-      opt.textContent = `${b} [${status}]` + (b === MAIN_BRANCH_NAME ? " (Main)" : "");
-      loginSel.appendChild(opt);
+  function verifyBranchPin() {
+    const branch = document.getElementById("loginBranchSelect").value;
+    const pin = document.getElementById("branchPinInput").value;
 
-      const filterOpt = document.createElement("option");
-      filterOpt.value = b;
-      filterOpt.textContent = b;
-      filterSel.appendChild(filterOpt);
-    });
-  }
+    if (pin === branchPINs[branch] || pin === branchPINs[MAIN_BRANCH_NAME]) {
+      activeBranch = branch;
+      isMainOwner = (branch === MAIN_BRANCH_NAME || pin === branchPINs[MAIN_BRANCH_NAME]);
+      
+      document.getElementById("activeBranchTag").innerText = `[ ${activeBranch} ]`;
+      document.getElementById("branchLockOverlay").style.display = "none";
+      document.getElementById("branchPinInput").value = "";
 
-  function updateLockTitle() {
-    const selected = document.getElementById("loginBranchSelect").value;
-    document.getElementById("lockTitle").innerText = selected;
-  }
+      populateBranchDropdowns();
+      filterSalesTable();
+      renderTrashTable();
+    } else {
+      alert("❌ PIN Incorrect!");
+    }
+  }
 
-  function verifyBranchPin() {
-    const branch = document.getElementById("loginBranchSelect").value;
-    const pin = document.getElementById("branchPinInput").value;
+  /* ADD NEW BRANCH (WITH MAIN PIN AUTHENTICATION) */
+  function addNewBranchWithPin() {
+    const mainPin = prompt(`🔒 Main Branch (${MAIN_BRANCH_NAME}) PIN ያስገቡ:`);
+    if (!mainPin) return;
 
-    if (pin === branchPINs[branch] || pin === branchPINs[MAIN_BRANCH_NAME]) {
-      activeBranch = branch;
-      isMainOwner = (branch === MAIN_BRANCH_NAME || pin === branchPINs[MAIN_BRANCH_NAME]);
-      
-      document.getElementById("activeBranchTag").innerText = `[ ${activeBranch} ]`;
-      updateBranchBadgeDisplay();
+    if (mainPin === branchPINs[MAIN_BRANCH_NAME]) {
+      const newBranchName = prompt("➕ የአዲሱ ቅርንጫፍ ስም (New Branch Name) ያስገቡ:");
+      if (!newBranchName || !newBranchName.trim()) return;
 
-      document.getElementById("branchLockOverlay").style.display = "none";
-      document.getElementById("branchPinInput").value = "";
+      const trimmedName = newBranchName.trim();
+      if (branchesList.includes(trimmedName)) {
+        alert("⚠️ ይህ ቅርንጫፍ አስቀድሞ አለ!");
+        return;
+      }
 
-      const optAll = document.getElementById("opt_all_branches");
-      if (optAll) optAll.disabled = !isMainOwner;
-      document.getElementById("btnAddBranch").style.display = isMainOwner ? "inline-block" : "none";
-      document.getElementById("btnToggleBranchStatus").style.display = isMainOwner ? "inline-block" : "none";
+      const defaultPin = prompt(`🔐 ለ "${trimmedName}" የሚሆን አዲስ PIN ያስገቡ (መደበኛ 4321):`, "4321") || "4321";
 
-      filterSalesTable();
-    } else {
-      alert("❌ PIN Incorrect!");
-    }
-  }
+      branchesList.push(trimmedName);
+      branchPINs[trimmedName] = defaultPin;
 
-  function updateBranchBadgeDisplay() {
-    const badge = document.getElementById("branchStatusBadge");
-    const st = branchStatus[activeBranch] || "OPEN";
-    badge.innerText = st;
-    badge.className = st === "OPEN" ? "badge-open" : "badge-closed";
-  }
+      localStorage.setItem("IFTU_BRANCH_LIST", JSON.stringify(branchesList));
+      localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
 
-  function toggleCurrentBranchStatus() {
-    if (!isMainOwner) {
-      alert("🔒 Only Main Branch can change status (Open/Close)!");
-      return;
-    }
-    const curStatus = branchStatus[activeBranch] || "OPEN";
-    const nextStatus = curStatus === "OPEN" ? "CLOSED" : "OPEN";
-    
-    if (confirm(`Change status of "${activeBranch}" to ${nextStatus}?`)) {
-      branchStatus[activeBranch] = nextStatus;
-      localStorage.setItem("IFTU_BRANCH_STATUS", JSON.stringify(branchStatus));
-      updateBranchBadgeDisplay();
-      populateBranchDropdowns();
-      alert(`✅ ${activeBranch} status updated to ${nextStatus}!`);
-    }
-  }
+      populateBranchDropdowns();
+      alert(`✅ ቅርንጫፍ "${trimmedName}" በተሳካ ሁኔታ ተጨምሯል!`);
+    } else {
+      alert("❌ የ Main Branch PIN ተሳስቷል! ፈቃድ የለዎትም።");
+    }
+  }
 
-  function lockSystem() {
-    document.getElementById("branchLockOverlay").style.display = "flex";
-    document.getElementById("navDropdown").classList.remove("show");
-    stopQrScanner();
-  }
+  /* DELETE BRANCH (WITH MAIN PIN AUTHENTICATION) */
+  function deleteSelectedBranchWithPin() {
+    const filterSel = document.getElementById("branchFilter");
+    const selectedBranch = filterSel.value;
 
-  function toggleNavDropdown() {
-    document.getElementById("navDropdown").classList.toggle("show");
-  }
+    if (selectedBranch === "MY_BRANCH" || selectedBranch === "ALL") {
+      alert("⚠️ እባክዎን ለማጥፋት የሚፈልጉትን ቅርንጫፍ ከ Filter ላይ ይምረጡ!");
+      return;
+    }
 
-  function switchTab(tabId) {
-    const currentActive = pageHistory[pageHistory.length - 1];
-    if (currentActive !== tabId) {
-      pageHistory.push(tabId);
-    }
+    if (selectedBranch === MAIN_BRANCH_NAME) {
+      alert("🚫 Main Branch ማጥፋት አይቻልም!");
+      return;
+    }
 
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    document.getElementById("navDropdown").classList.remove("show");
+    const mainPin = prompt(`🔒 Main Branch (${MAIN_BRANCH_NAME}) PIN ያስገቡ:`);
+    if (!mainPin) return;
 
-    if (tabId === 'tab-qr') {
-      startQrScanner();
-    } else {
-      stopQrScanner();
-    }
-  }
+    if (mainPin === branchPINs[MAIN_BRANCH_NAME]) {
+      if (confirm(`⚠️ በእርግጥ "${selectedBranch}" ቅርንጫፍን ማጥፋት ይፈልጋሉ?`)) {
+        branchesList = branchesList.filter(b => b !== selectedBranch);
+        delete branchPINs[selectedBranch];
 
-  /* BACK BUTTON NAVIGATION FUNCTION */
-  function goBack() {
-    if (document.getElementById("receiptModal").style.display === "flex") {
-      closeModal();
-      return;
-    }
-    if (document.getElementById("pinModal").style.display === "flex") {
-      closePinModal();
-      return;
-    }
+        localStorage.setItem("IFTU_BRANCH_LIST", JSON.stringify(branchesList));
+        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
 
-    if (pageHistory.length > 1) {
-      pageHistory.pop(); // Remove current
-      const prevTab = pageHistory[pageHistory.length - 1];
-      
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(prevTab).classList.add('active');
+        filterSel.value = "MY_BRANCH";
+        populateBranchDropdowns();
+        filterSalesTable();
+        alert(`🗑️ ቅርንጫፍ "${selectedBranch}" ተሰርዟል!`);
+      }
+    } else {
+      alert("❌ የ Main Branch PIN ተሳስቷል!");
+    }
+  }
 
-      if (prevTab === 'tab-qr') {
-        startQrScanner();
-      } else {
-        stopQrScanner();
-      }
-    } else {
-      alert("ℹ️ You are at the first page.");
-    }
-  }
+  function lockSystem() {
+    document.getElementById("branchLockOverlay").style.display = "flex";
+    document.getElementById("navDropdown").classList.remove("show");
+    stopQrScanner();
+  }
 
-  function startQrScanner() {
-    if (html5QrCode) {
-      stopQrScanner();
-    }
+  function toggleNavDropdown() {
+    document.getElementById("navDropdown").classList.toggle("show");
+  }
 
-    html5QrCode = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+  function switchTab(tabId) {
+    const currentActive = pageHistory[pageHistory.length - 1];
+    if (currentActive !== tabId) {
+      pageHistory.push(tabId);
+    }
 
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-      .catch(err => console.warn("Camera start failed:", err));
-  }
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.getElementById("navDropdown").classList.remove("show");
 
-  function stopQrScanner() {
-    if (html5QrCode) {
-      html5QrCode.stop().then(() => {
-        html5QrCode.clear();
-        html5QrCode = null;
-      }).catch(err => console.log("Scanner stop error:", err));
-    }
-  }
+    if (tabId === 'tab-qr') {
+      startQrScanner();
+    } else {
+      stopQrScanner();
+    }
 
-  function restartQrScanner() {
-    stopQrScanner();
-    setTimeout(() => startQrScanner(), 300);
-  }
+    if (tabId === 'tab-settings') {
+      renderTrashTable();
+    }
+  }
 
-  function onScanSuccess(decodedText) {
-    const foundRecord = allRecords.find(r => r.id === decodedText.trim());
-    if (foundRecord) {
-      showReceiptModal(foundRecord);
-    } else {
-      alert(`⚠️ Record with ID "${decodedText}" not found!`);
-    }
-  }
+  function goBack() {
+    if (document.getElementById("receiptModal").style.display === "flex") {
+      closeModal();
+      return;
+    }
+    if (document.getElementById("pinModal").style.display === "flex") {
+      closePinModal();
+      return;
+    }
+    if (document.getElementById("changePinModal").style.display === "flex") {
+      closeChangePinModal();
+      return;
+    }
 
-  function previewAndCompressImage(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const img = new Image();
-      img.onload = function() {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const maxDim = 400;
-        let w = img.width, h = img.height;
-        if (w > h && w > maxDim) { h *= maxDim / w; w = maxDim; }
-        else if (h > maxDim) { w *= maxDim / h; h = maxDim; }
-        canvas.width = w; canvas.height = h;
-        ctx.drawImage(img, 0, 0, w, h);
-        base64Image = canvas.toDataURL("image/jpeg", 0.7);
-        const prev = document.getElementById("imgPreview");
-        prev.src = base64Image;
-        prev.style.display = "block";
-      };
-      img.src = event.target.result;
-    };
-    reader.readAsDataURL(file);
-  }
+    if (pageHistory.length > 1) {
+      pageHistory.pop();
+      const prevTab = pageHistory[pageHistory.length - 1];
+      
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(prevTab).classList.add('active');
 
-  function calculateAftee() {
-    const g = Number(document.getElementById("gati").value) || 0;
-    const q = Number(document.getElementById("qabdu").value) || 0;
-    document.getElementById("aftee").value = g - q;
-  }
+      if (prevTab === 'tab-qr') {
+        startQrScanner();
+      } else {
+        stopQrScanner();
+      }
+    } else {
+      alert("ℹ️ You are at the first page.");
+    }
+  }
 
-  function saveRecord() {
-    if (branchStatus[activeBranch] === "CLOSED") {
-      alert(`🚫 Cannot add new records! Branch "${activeBranch}" is CLOSED.`);
-      return;
-    }
+  function startQrScanner() {
+    if (html5QrCode) {
+      stopQrScanner();
+    }
 
-    const maqa = document.getElementById("maqa").value.trim();
-    const gosa = document.getElementById("gosaMeeshaa").value.trim();
-    const gati = Number(document.getElementById("gati").value) || 0;
-    const qabdu = Number(document.getElementById("qabdu").value) || 0;
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
 
-    if (!maqa || !gosa) {
-      alert("⚠️ Maaloo Maqaa fi Gosa meeshaa guutaa!");
-      return;
-    }
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+      .catch(err => console.warn("Camera start failed:", err));
+  }
 
-    const newRecord = {
-      id: "IFTU-" + Date.now(),
-      branch: activeBranch,
-      maqa, gosa,
-      haluu: document.getElementById("haluu").value,
-      gati, qabdu,
-      aftee: gati - qabdu,
-      biyya: document.getElementById("biyya").value || "Ethiopia",
-      bakka: document.getElementById("bakkaIttiDemmu").value,
-      lakkBil: document.getElementById("lakkBil").value,
-      guyyaaBelamaa: document.getElementById("guyyaaBelamaa").value,
-      delivery: document.getElementById("kanBae").value,
-      photo: base64Image
-    };
+  function stopQrScanner() {
+    if (html5QrCode) {
+      html5QrCode.stop().then(() => {
+        html5QrCode.clear();
+        html5QrCode = null;
+      }).catch(err => console.log("Scanner stop error:", err));
+    }
+  }
 
-    allRecords.push(newRecord);
-    localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-    filterSalesTable();
-    showReceiptModal(newRecord);
-    resetForm();
-  }
+ Bezi code wusex eiftuabc function restartQrScanner() {
+    stopQrScanner();
+    setTimeout(() => startQrScanner(), 300);
+  }
 
-  function resetForm() {
-    document.getElementById("maqa").value = "";
-    document.getElementById("gosaMeeshaa").value = "";
-    document.getElementById("haluu").value = "";
-    document.getElementById("gati").value = "";
-    document.getElementById("qabdu").value = "";
-    document.getElementById("aftee").value = "";
-    document.getElementById("biyya").value = "";
-    document.getElementById("bakkaIttiDemmu").value = "";
-    document.getElementById("lakkBil").value = "";
-    document.getElementById("guyyaaBelamaa").value = "";
-    document.getElementById("imgPreview").style.display = "none";
-    base64Image = "";
-  }
-
-  function filterSalesTable() {
-    const tbody = document.getElementById("salesTableBody");
-    const filter = document.getElementById("branchFilter").value;
-    const searchVal = document.getElementById("searchInput").value.toLowerCase();
-    tbody.innerHTML = "";
-
-    let list = allRecords.filter(r => {
-      let branchMatch = false;
-      if (filter === "ALL" && isMainOwner) branchMatch = true;
-      else if (filter === "MY_BRANCH") branchMatch = (r.branch === activeBranch);
-      else branchMatch = (r.branch === filter);
-
-      let searchMatch = r.maqa.toLowerCase().includes(searchVal) || 
-                        r.gosa.toLowerCase().includes(searchVal) ||
-                        (r.biyya && r.biyya.toLowerCase().includes(searchVal)) ||
-                        (r.bakka && r.bakka.toLowerCase().includes(searchVal));
-      return branchMatch && searchMatch;
-    });
-
-    list.forEach((r, idx) => {
-      const tr = document.createElement("tr");
-      const imgTag = r.photo ? `<img src="${r.photo}" class="img-preview">` : `<div style="width:45px;height:45px;background:var(--input-bg);border-radius:8px;"></div>`;
-      
-      let actionButtons = `<button class="btn btn-sm" onclick="printSingleReceipt('${r.id}')">🖨️ Print</button>`;
-      
-      if (isMainOwner) {
-        actionButtons += ` <button class="btn btn-sm btn-warning" onclick="editRecord('${r.id}')">✏️ Edit</button> `;
-        actionButtons += ` <button class="btn btn-sm btn-danger" onclick="deleteRecord('${r.id}')">🗑️ Delete</button>`;
-      }
-
-      tr.innerHTML = `
-        <td>${imgTag}</td>
-        <td>${idx + 1}</td>
-        <td><b>${r.branch}</b></td>
-        <td>${r.maqa}</td>
-        <td>${r.gosa}</td>
-        <td>${r.gati} ETB</td>
-        <td style="color:var(--green)">${r.qabdu} ETB</td>
-        <td style="color:var(--red); font-weight:bold;">${r.aftee} ETB</td>
-        <td><b>${r.biyya || 'Ethiopia'}</b></td>
-        <td>${r.bakka || 'N/A'}</td>
-        <td>${r.lakkBil}</td>
-        <td style="color:var(--gold); font-weight:bold;">${r.guyyaaBelamaa || 'N/A'}</td>
-        <td>${r.delivery}</td>
-        <td>${actionButtons}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function editRecord(id) {
-    if (!isMainOwner) {
-      alert("🔒 Edit is only allowed by Main Branch!");
-      return;
-    }
-    const rec = allRecords.find(r => r.id === id);
-    if (!rec) return;
-
-    const newGati = prompt("Enter New Total Price:", rec.gati);
-    const newQabdu = prompt("Enter New Deposit:", rec.qabdu);
-    const newCountry = prompt("Enter Country / Biyya:", rec.biyya || "Ethiopia");
-    const newAddress = prompt("Enter Delivery Address:", rec.bakka || "");
-    const newDate = prompt("Enter Delivery Date (YYYY-MM-DD):", rec.guyyaaBelamaa || "");
-
-    if (newGati !== null && newQabdu !== null) {
-      rec.gati = Number(newGati);
-      rec.qabdu = Number(newQabdu);
-      rec.aftee = rec.gati - rec.qabdu;
-      if(newCountry !== null) rec.biyya = newCountry;
-      if(newAddress !== null) rec.bakka = newAddress;
-      if(newDate !== null) rec.guyyaaBelamaa = newDate;
-      localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-      filterSalesTable();
-    }
-  }
-
-  function deleteRecord(id) {
-    if (!isMainOwner) {
-      alert("🔒 Delete is only allowed by Main Branch!");
-      return;
-    }
-    if (confirm("⚠️ Permanent Delete?")) {
-      allRecords = allRecords.filter(r => r.id !== id);
-      localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-      filterSalesTable();
-    }
-  }
-
-  function addNewBranch() {
-    if (!isMainOwner) {
-      alert("🔒 Only Main Branch can add new branches!");
-      return;
-    }
-    const name = prompt("Enter New Branch Name:");
-    if (name && !branchesList.includes(name)) {
-      branchesList.push(name);
-      branchPINs[name] = "4321";
-      branchStatus[name] = "OPEN";
-      localStorage.setItem("IFTU_BRANCH_LIST", JSON.stringify(branchesList));
-      localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-      localStorage.setItem("IFTU_BRANCH_STATUS", JSON.stringify(branchStatus));
-      populateBranchDropdowns();
-      alert(`✅ New Branch "${name}" Added with PIN 4321!`);
-    }
-  }
-
-  function showReceiptModal(record) {
-    document.getElementById("receiptImage").src = record.photo || "";
-    document.getElementById("receiptImage").style.display = record.photo ? "block" : "none";
-    
-    document.getElementById("receiptDetails").innerHTML = `
-      <b>ID:</b> ${record.id}<br>
-      <b>Branch:</b> ${record.branch}<br>
-      <b>Customer:</b> ${record.maqa}<br>
-      <b>Item:</b> ${record.gosa} (${record.haluu || 'N/A'})<br>
-      <b>Total Price:</b> ${record.gati} ETB<br>
-      <b>Deposit:</b> ${record.qabdu} ETB<br>
-      <b>Balance:</b> <span style="color:red; font-weight:bold;">${record.aftee} ETB</span><br>
-      <b>Country:</b> ${record.biyya || 'Ethiopia'}<br>
-      <b>Delivery Location:</b> ${record.bakka || 'N/A'}<br>
-      <b>Phone:</b> ${record.lakkBil}<br>
-      <b>Delivery Date:</b> ${record.guyyaaBelamaa || 'N/A'}
-    `;
-
-    document.getElementById("qrcode").innerHTML = "";
-    new QRCode(document.getElementById("qrcode"), { text: record.id, width: 110, height: 110 });
-    document.getElementById("receiptModal").style.display = "flex";
-  }
-
-  function printSingleReceipt(id) {
-    const rec = allRecords.find(r => r.id === id);
-    if (rec) showReceiptModal(rec);
-  }
-
-  function closeModal() {
-    document.getElementById("receiptModal").style.display = "none";
-  }
-
-  function openForgetPinModal() {
-    document.getElementById("pinModal").style.display = "flex";
-  }
-
-  function closePinModal() {
-    document.getElementById("pinModal").style.display = "none";
-  }
-
-  function resetPinWithRecovery() {
-    const branch = document.getElementById("loginBranchSelect").value;
-    const key = document.getElementById("recoveryKeyInput").value;
-    const newPin = document.getElementById("newPinInput").value;
-
-    if (key === RECOVERY_KEY) {
-      if (newPin && newPin.length >= 4) {
-        branchPINs[branch] = newPin;
-        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-        alert(`✅ Success! PIN for ${branch} reset to: ${newPin}`);
-        closePinModal();
-      } else {
-        alert("❌ PIN must be at least 4 digits!");
-      }
-    } else {
-      alert("❌ Secret Keyword Error!");
-    }
-  }
-
-  function openChangePinModal() {
-    const branch = document.getElementById("loginBranchSelect").value;
-    const oldPin = prompt(`Enter Current PIN for ${branch}:`);
-    
-    if (oldPin === branchPINs[branch] || (oldPin === branchPINs[MAIN_BRANCH_NAME] && oldPin !== "")) {
-      const newPin = prompt("Enter New PIN (min 4 digits):");
-      if (newPin && newPin.length >= 4) {
-        branchPINs[branch] = newPin;
-        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-        alert("✅ PIN Changed Successfully!");
-      } else {
-        alert("❌ New PIN must be at least 4 digits!");
-      }
-    } else {
-      alert("❌ Current PIN Incorrect!");
-    }
-  }
-
-  function toggleTheme() {
-    document.body.classList.toggle("light-mode");
-  }
-
-  populateBranchDropdowns();
-  updateLockTitle();
-</script>
-
-</body>
-</html>
+  function onScanSuccess(decodedText) {
+    const foundRe
