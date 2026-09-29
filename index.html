@@ -3,11 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IFTUU FURNITURE - POS V19 (Cloudinary, Backup & Telegram OTP)</title>
+<title>IFTUU FURNITURE - POS V19 (Cloudinary, Backup & Telegram PDF)</title>
 
 <!-- QR Code Generator & Scanner Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
+
+<!-- PDF Generation Library (html2pdf.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
 :root {
@@ -396,12 +399,12 @@ th { background: var(--input-bg); color: var(--gold); }
         </div>
         <div class="form-group full-width">
           <label id="lblPhoto">Suuraa Meeshaa (Cloudinary Upload)</label>
-          <input type="file" id="itemPhoto" accept="image/*" onchange="previewAndCompressImage(event)">
+          <input type="file" id="itemPhoto" accept="image/*" onchange="previewAndUploadCloudinary(event)">
           <div id="uploadSpinner">⏳ Suuraan Cloudinary irratti ol-fe'amaa jira...</div>
           <img id="imgPreview" style="display:none; width: 80px; height: 80px; margin-top: 10px; border-radius:8px; object-fit:cover;">
         </div>
       </div>
-      <button class="btn" style="width:100%; margin-top:15px;" id="btnSave" onclick="saveRecord()">💾 Galmeessi & Print</button>
+      <button class="btn" style="width:100%; margin-top:15px;" id="btnSave" onclick="saveRecord()">💾 Galmeessi & Telegram Send PDF</button>
     </div>
   </div>
 
@@ -421,8 +424,8 @@ th { background: var(--input-bg); color: var(--gold); }
               <option value="MY_BRANCH">🏢 My Current Branch</option>
               <option value="ALL" id="opt_all_branches">🔓 All Branches (Main Owner)</option>
             </select>
-            <button class="btn btn-sm btn-success" onclick="addNewBranchWithPin()" title="Add New Branch (Main Branch Only)">➕ Add Branch</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteSelectedBranchWithPin()" title="Delete Branch (Main Branch Only)">🗑️ Delete Branch</button>
+            <button class="btn btn-sm btn-success" onclick="addNewBranchWithPin()" title="Add New Branch">➕ Add Branch</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSelectedBranchWithPin()" title="Delete Branch">🗑️ Delete Branch</button>
           </div>
         </div>
 
@@ -537,40 +540,8 @@ th { background: var(--input-bg); color: var(--gold); }
     <div id="qrcode" style="display:flex; justify-content:center; margin: 15px 0;"></div>
     
     <button class="btn no-print" onclick="window.print()" style="width:100%; margin-top:10px;">🖨️ Maxxansi / Print</button>
+    <button class="btn btn-success no-print" onclick="sendCurrentReceiptPDFToTelegram()" style="width:100%; margin-top:5px;">📩 Send PDF to Telegram</button>
     <button class="btn btn-danger btn-sm no-print" onclick="closeModal()" style="width:100%; margin-top:5px;">Cufi / Close</button>
-  </div>
-</div>
-
-<!-- TELEGRAM OTP VERIFICATION MODAL -->
-<div id="pinModal" class="modal">
-  <div class="modal-content" style="background: var(--card); color: var(--text); border: 1px solid var(--border); text-align: left; max-width: 400px;">
-    <h3 style="color:var(--gold); margin-top: 0;">🔑 PIN Reset via Telegram</h3>
-    
-    <p style="font-size:12px; color:var(--muted); margin-bottom: 15px;">
-      ወደ ቴሌግራምህ የማረጋገጫ ኮድ እንዲላክ "Send Code" የሚለውን ተጫን።
-    </p>
-
-    <button class="btn btn-warning btn-sm" style="width: 100%; margin-bottom: 15px;" onclick="sendTelegramOTP()">
-      📩 Send Verification Code via Telegram
-    </button>
-
-    <div class="form-group">
-      <label>1. በቴሌግራም የመጣልህ ኮድ (Verification Code):</label>
-      <input id="otpCodeInput" placeholder="Enter 6-digit OTP" style="text-align: center; font-size: 18px; letter-spacing: 3px;">
-    </div>
-
-    <div class="form-group">
-      <label>2. አዲስ PIN ያስገቡ (New PIN):</label>
-      <input type="password" id="newPinInput" placeholder="Enter New PIN" maxlength="6" style="text-align: center; font-size: 18px;">
-    </div>
-
-    <button class="btn" style="width:100%; margin-top: 10px;" onclick="verifyOTPAndResetPin()">
-      ✅ Verify & Reset PIN
-    </button>
-    
-    <button class="btn btn-danger btn-sm" style="width:100%; margin-top:8px;" onclick="closePinModal()">
-      Cancel
-    </button>
   </div>
 </div>
 
@@ -606,7 +577,6 @@ th { background: var(--input-bg); color: var(--gold); }
 
   const MAIN_BRANCH_NAME = "Ginchi Branch";
   let pageHistory = ['tab-pos'];
-  let generatedOTP = null;
 
   let branchesList = JSON.parse(localStorage.getItem("IFTU_BRANCH_LIST")) || [
     "Ginchi Branch",
@@ -624,133 +594,18 @@ th { background: var(--input-bg); color: var(--gold); }
     "Jimma Branch": "4321"
   };
 
-  let activeBranch = "";
+  let activeBranch = "Ginchi Branch";
   let isMainOwner = false;
-  let currentEditingId = null;
-  
-  let allRecords = JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [];
-  let trashRecords = JSON.parse(localStorage.getItem("IFTU_TRASH_RECORDS")) || [];
-  
-  let base64Image = "";
+  let currentActiveRecord = null;
+  let uploadedCloudinaryUrl = "";
   let html5QrCode = null;
 
-  const translations = {
-    om: {
-      lblMenuBtn: "Tarree",
-      lblNavReg: "Galmee Meeshaa",
-      lblNavSales: "Galmee Gurgurtaa",
-      lblNavSettings: "Settings",
-      lblNavLock: "Damee Jijjiiri",
-      lblLockSub: "Formii kana fayyadamuu PIN galchaa.",
-      lblSelectBranch: "Damee Filadhaa:",
-      btnLogin: "Seeni",
-      hdrReg: "📝 Galmee Meeshaa Haarawaa",
-      lblCustomer: "Maqaa Maamilchaa",
-      lblItemType: "Gosa Meeshaa",
-      lblColor: "Haluu (Color)",
-      lblTotalPrice: "Gati Total (ETB)",
-      lblDeposit: "Qabdu (ETB)",
-      lblBalance: "Aftee (ETB)",
-      lblCountry: "🌐 Biyya (Country)",
-      lblAddress: "Bakka Itti Ergamuu",
-      lblPhone: "Lakk Bilbilaa",
-      lblDeliveryDate: "📅 Guyyaa Beellamaa",
-      lblStatus: "Haala Ergaa (Delivery Status)",
-      lblPhoto: "Suuraa Meeshaa",
-      btnSave: "💾 Galmeessi & Print",
-      hdrSales: "📋 Galmee Gurgurtaa",
-      hdrSettings: "⚙️ System Settings & Backup",
-      lblSearch: "🔍 Barbaadi:",
-      thName: "Maqaa",
-      thItem: "Gosa",
-      thPrice: "Gati Total",
-      thDeposit: "Qabdu",
-      thBalance: "Aftee",
-      thCountry: "Biyya",
-      thAddress: "Bakka",
-      thPhone: "Bilbila",
-      thDate: "Guyyaa Beellamaa",
-      thStatus: "Haala Ergaa"
-    },
-    am: {
-      lblMenuBtn: "ሜኑዎች",
-      lblNavReg: "ዕቃ መመዝገቢያ",
-      lblNavSales: "የሽያጭ መዝገብ",
-      lblNavSettings: "ማስተካካያ (Settings)",
-      lblNavLock: "ቅርንጫፍ ይቀይሩ",
-      lblLockSub: "ይህንን ቅጽ ለመጠቀም PIN ያስገቡ።",
-      lblSelectBranch: "ቅርንጫፍ ይምረጡ:",
-      btnLogin: "ግባ",
-      hdrReg: "📝 አዲስ ዕቃ መመዝገቢያ",
-      lblCustomer: "የደንበኛ ስም",
-      lblItemType: "የዕቃው ዓይነት",
-      lblColor: "ቀለም",
-      lblTotalPrice: "ጠቅላላ ዋጋ (ETB)",
-      lblDeposit: "ቅድመ ክፍያ (ETB)",
-      lblBalance: "ቀሪ ሂሳብ (ETB)",
-      lblCountry: "🌐 ሀገር (Country)",
-      lblAddress: "የመላኪያ ቦታ",
-      lblPhone: "ስልክ ቁጥር",
-      lblDeliveryDate: "📅 የተቀጠረበት ቀን",
-      lblStatus: "የመላክ ሁኔታ (Status)",
-      lblPhoto: "የዕቃው ፎቶ",
-      btnSave: "💾 መዝግብ እና አትም",
-      hdrSales: "📋 የሽያጭ መዝገብ",
-      hdrSettings: "⚙️ ሲስተም ማስተካካያ & Backup",
-      lblSearch: "🔍 ፈልግ:",
-      thName: "ስም",
-      thItem: "ዓይነት",
-      thPrice: "ጠቅላላ ዋጋ",
-      thDeposit: "ቅድመ ክፍያ",
-      thBalance: "ቀሪ ሂሳብ",
-      thCountry: "ሀገር",
-      thAddress: "ቦታ",
-      thPhone: "ስልክ",
-      thDate: "የተቀጠረበት ቀን",
-      thStatus: "ሁኔታ"
-    },
-    en: {
-      lblMenuBtn: "Menus",
-      lblNavReg: "Item Registration",
-      lblNavSales: "Sales Records",
-      lblNavSettings: "Settings",
-      lblNavLock: "Switch Branch",
-      lblLockSub: "Enter PIN to access form.",
-      lblSelectBranch: "Select Branch:",
-      btnLogin: "Login",
-      hdrReg: "📝 New Item Registration",
-      lblCustomer: "Customer Name",
-      lblItemType: "Item Type",
-      lblColor: "Color",
-      lblTotalPrice: "Total Price (ETB)",
-      lblDeposit: "Deposit (ETB)",
-      lblBalance: "Balance (ETB)",
-      lblCountry: "🌐 Country",
-      lblAddress: "Delivery Address",
-      lblPhone: "Phone Number",
-      lblDeliveryDate: "📅 Delivery Date",
-      lblStatus: "Delivery Status",
-      lblPhoto: "Item Photo",
-      btnSave: "💾 Save & Print",
-      hdrSales: "📋 Sales Records",
-      hdrSettings: "⚙️ System Settings & Backup",
-      lblSearch: "🔍 Search:",
-      thName: "Name",
-      thItem: "Item",
-      thPrice: "Total Price",
-      thDeposit: "Deposit",
-      thBalance: "Balance",
-      thCountry: "Country",
-      thAddress: "Address",
-      thPhone: "Phone",
-      thDate: "Delivery Date",
-      thStatus: "Status"
-    }
-  };
+  let allRecords = JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [];
+  let trashRecords = JSON.parse(localStorage.getItem("IFTU_TRASH_RECORDS")) || [];
 
   window.onload = function() {
     populateBranchDropdowns();
-    changeLanguage();
+    filterSalesTable();
   };
 
   function populateBranchDropdowns() {
@@ -758,17 +613,8 @@ th { background: var(--input-bg); color: var(--gold); }
     const changePinSel = document.getElementById("changePinBranchSelect");
     const filterSel = document.getElementById("branchFilter");
 
-    const currentFilterVal = filterSel ? filterSel.value : "MY_BRANCH";
-
     if (loginSel) loginSel.innerHTML = "";
     if (changePinSel) changePinSel.innerHTML = "";
-
-    if (filterSel) {
-      filterSel.innerHTML = `
-        <option value="MY_BRANCH">🏢 My Current Branch</option>
-        <option value="ALL" id="opt_all_branches">🔓 All Branches (Main Owner)</option>
-      `;
-    }
 
     branchesList.forEach(b => {
       if (loginSel) {
@@ -777,25 +623,13 @@ th { background: var(--input-bg); color: var(--gold); }
         opt.textContent = `${b}` + (b === MAIN_BRANCH_NAME ? " (Main)" : "");
         loginSel.appendChild(opt);
       }
-
       if (changePinSel) {
         const optPin = document.createElement("option");
         optPin.value = b;
         optPin.textContent = `${b}` + (b === MAIN_BRANCH_NAME ? " (Main)" : "");
         changePinSel.appendChild(optPin);
       }
-
-      if (filterSel) {
-        const filterOpt = document.createElement("option");
-        filterOpt.value = b;
-        filterOpt.textContent = b;
-        filterSel.appendChild(filterOpt);
-      }
     });
-
-    if (filterSel && currentFilterVal && Array.from(filterSel.options).some(o => o.value === currentFilterVal)) {
-      filterSel.value = currentFilterVal;
-    }
   }
 
   function updateLockTitle() {
@@ -815,7 +649,6 @@ th { background: var(--input-bg); color: var(--gold); }
       document.getElementById("branchLockOverlay").style.display = "none";
       document.getElementById("branchPinInput").value = "";
 
-      populateBranchDropdowns();
       filterSalesTable();
       renderTrashTable();
     } else {
@@ -823,175 +656,21 @@ th { background: var(--input-bg); color: var(--gold); }
     }
   }
 
-  function addNewBranchWithPin() {
-    const mainPin = prompt(`🔒 Main Branch (${MAIN_BRANCH_NAME}) PIN ያስገቡ:`);
-    if (!mainPin) return;
-
-    if (mainPin === branchPINs[MAIN_BRANCH_NAME]) {
-      const newBranchName = prompt("➕ የአዲሱ ቅርንጫፍ ስም (New Branch Name) ያስገቡ:");
-      if (!newBranchName || !newBranchName.trim()) return;
-
-      const trimmedName = newBranchName.trim();
-      if (branchesList.includes(trimmedName)) {
-        alert("⚠️ ይህ ቅርንጫፍ አስቀድሞ አለ!");
-        return;
-      }
-
-      const defaultPin = prompt(`🔐 ለ "${trimmedName}" የሚሆን አዲስ PIN ያስገቡ (መደበኛ 4321):`, "4321") || "4321";
-
-      branchesList.push(trimmedName);
-      branchPINs[trimmedName] = defaultPin;
-
-      localStorage.setItem("IFTU_BRANCH_LIST", JSON.stringify(branchesList));
-      localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-
-      populateBranchDropdowns();
-      alert(`✅ ቅርንጫፍ "${trimmedName}" በተሳካ ሁኔታ ተጨምሯል!`);
-    } else {
-      alert("❌ የ Main Branch PIN ተሳስቷል! ፈቃድ የለዎትም።");
-    }
+  function calculateAftee() {
+    const gati = parseFloat(document.getElementById("gati").value) || 0;
+    const qabdu = parseFloat(document.getElementById("qabdu").value) || 0;
+    document.getElementById("aftee").value = gati - qabdu;
   }
 
-  function deleteSelectedBranchWithPin() {
-    const filterSel = document.getElementById("branchFilter");
-    const selectedBranch = filterSel.value;
-
-    if (selectedBranch === "MY_BRANCH" || selectedBranch === "ALL") {
-      alert("⚠️ እባክዎን ለማጥፋት የሚፈልጉትን ቅርንጫፍ ከ Filter ላይ ይምረጡ!");
-      return;
-    }
-
-    if (selectedBranch === MAIN_BRANCH_NAME) {
-      alert("🚫 Main Branch ማጥፋት አይቻልም!");
-      return;
-    }
-
-    const mainPin = prompt(`🔒 Main Branch (${MAIN_BRANCH_NAME}) PIN ያስገቡ:`);
-    if (!mainPin) return;
-
-    if (mainPin === branchPINs[MAIN_BRANCH_NAME]) {
-      if (confirm(`⚠️ በእርግጥ "${selectedBranch}" ቅርንጫፍን ማጥፋት ይፈልጋሉ?`)) {
-        branchesList = branchesList.filter(b => b !== selectedBranch);
-        delete branchPINs[selectedBranch];
-
-        localStorage.setItem("IFTU_BRANCH_LIST", JSON.stringify(branchesList));
-        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-
-        filterSel.value = "MY_BRANCH";
-        populateBranchDropdowns();
-        filterSalesTable();
-        alert(`🗑️ ቅርንጫፍ "${selectedBranch}" ተሰርዟል!`);
-      }
-    } else {
-      alert("❌ የ Main Branch PIN ተሳስቷል!");
-    }
-  }
-
-  function lockSystem() {
-    document.getElementById("branchLockOverlay").style.display = "flex";
-    document.getElementById("navDropdown").classList.remove("show");
-    stopQrScanner();
-  }
-
-  function toggleNavDropdown() {
-    document.getElementById("navDropdown").classList.toggle("show");
-  }
-
-  function switchTab(tabId) {
-    const currentActive = pageHistory[pageHistory.length - 1];
-    if (currentActive !== tabId) {
-      pageHistory.push(tabId);
-    }
-
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    document.getElementById("navDropdown").classList.remove("show");
-
-    if (tabId === 'tab-qr') {
-      startQrScanner();
-    } else {
-      stopQrScanner();
-    }
-
-    if (tabId === 'tab-settings') {
-      renderTrashTable();
-    }
-  }
-
-  function goBack() {
-    if (document.getElementById("receiptModal").style.display === "flex") {
-      closeModal();
-      return;
-    }
-    if (document.getElementById("pinModal").style.display === "flex") {
-      closePinModal();
-      return;
-    }
-    if (document.getElementById("changePinModal").style.display === "flex") {
-      closeChangePinModal();
-      return;
-    }
-
-    if (pageHistory.length > 1) {
-      pageHistory.pop();
-      const prevTab = pageHistory[pageHistory.length - 1];
-      
-      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-      document.getElementById(prevTab).classList.add('active');
-
-      if (prevTab === 'tab-qr') {
-        startQrScanner();
-      } else {
-        stopQrScanner();
-      }
-    } else {
-      alert("ℹ️ You are at the first page.");
-    }
-  }
-
-  function startQrScanner() {
-    if (html5QrCode) {
-      stopQrScanner();
-    }
-
-    html5QrCode = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 220, height: 220 } };
-
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-      .catch(err => console.warn("Camera start failed:", err));
-  }
-
-  function stopQrScanner() {
-    if (html5QrCode) {
-      html5QrCode.stop().then(() => {
-        html5QrCode.clear();
-        html5QrCode = null;
-      }).catch(err => console.log("Scanner stop error:", err));
-    }
-  }
-
-  function restartQrScanner() {
-    stopQrScanner();
-    setTimeout(() => startQrScanner(), 300);
-  }
-
-  function onScanSuccess(decodedText) {
-    const foundRec = allRecords.find(r => r.id === decodedText.trim() || decodedText.includes(r.id));
-    if (foundRec) {
-      showReceipt(foundRec.id);
-    } else {
-      alert("🔍 Scanned Details:\n" + decodedText);
-    }
-  }
-
-  async function previewAndCompressImage(event) {
+  // 📷 CLOUDINARY UPLOAD FUNCTION
+  async function previewAndUploadCloudinary(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const spinner = document.getElementById("uploadSpinner");
-    const preview = document.getElementById("imgPreview");
-
-    if (spinner) spinner.style.display = "block";
+    const imgPreview = document.getElementById("imgPreview");
+    
+    spinner.style.display = "block";
 
     const formData = new FormData();
     formData.append("file", file);
@@ -1002,73 +681,70 @@ th { background: var(--input-bg); color: var(--gold); }
         method: "POST",
         body: formData
       });
-
       const data = await response.json();
-
+      
       if (data.secure_url) {
-        base64Image = data.secure_url;
-        if (preview) {
-          preview.src = base64Image;
-          preview.style.display = "block";
-        }
-        alert("✅ ፎቶው በስኬት ወደ Cloudinary ተጭኗል!");
+        uploadedCloudinaryUrl = data.secure_url;
+        imgPreview.src = uploadedCloudinaryUrl;
+        imgPreview.style.display = "block";
       } else {
-        alert("❌ የ Cloudinary ስህተት፦ " + (data.error ? data.error.message : "መጫን አልተቻለም"));
+        alert("⚠️ Cloudinary Upload Failed! Default placeholder used.");
       }
-    } catch (error) {
-      console.error("Upload Error:", error);
-      alert("❌ የኔትወርክ ስህተት ተፈጽሟል! እባክዎን የኢንተርኔት ግንኙነትዎን ያረጋግጡ።");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Photo upload error!");
     } finally {
-      if (spinner) spinner.style.display = "none";
+      spinner.style.display = "none";
     }
   }
 
-  function calculateAftee() {
-    const total = parseFloat(document.getElementById("gati").value) || 0;
-    const deposit = parseFloat(document.getElementById("qabdu").value) || 0;
-    document.getElementById("aftee").value = total - deposit;
-  }
+  // 💾 SAVE RECORD AND GENERATE TELEGRAM PDF
+  async function saveRecord() {
+    const name = document.getElementById("maqa").value.trim();
+    const item = document.getElementById("gosaMeeshaa").value.trim();
+    const price = document.getElementById("gati").value;
+    const deposit = document.getElementById("qabdu").value || 0;
+    const balance = document.getElementById("aftee").value || 0;
 
-  function saveRecord() {
-    const maqa = document.getElementById("maqa").value;
-    const gosaMeeshaa = document.getElementById("gosaMeeshaa").value;
-    const gati = document.getElementById("gati").value;
-
-    if (!maqa || !gosaMeeshaa || !gati) {
-      alert("⚠️ እባክዎን አስፈላጊ መረጃዎችን (ስም፣ የዕቃ ዓይነት እና ዋጋ) ይሙሉ!");
+    if (!name || !item || !price) {
+      alert("⚠️ እባክዎን አስፈላጊ የሆኑ ቦታዎችን (ስም፣ የዕቃ ዓይነት፣ ዋጋ) ይሙሉ!");
       return;
     }
 
-    const recId = currentEditingId ? currentEditingId : "IFTU-" + Math.floor(100000 + Math.random() * 900000);
-
+    const recId = "IFT-" + Math.floor(1000 + Math.random() * 9000);
     const newRecord = {
       id: recId,
       branch: activeBranch,
-      maqa: maqa,
-      gosaMeeshaa: gosaMeeshaa,
-      haluu: document.getElementById("haluu").value,
-      gati: gati,
-      qabdu: document.getElementById("qabdu").value || 0,
-      aftee: document.getElementById("aftee").value || 0,
-      biyya: document.getElementById("biyya").value,
-      bakkaIttiDemmu: document.getElementById("bakkaIttiDemmu").value,
-      lakkBil: document.getElementById("lakkBil").value,
-      guyyaaBelamaa: document.getElementById("guyyaaBelamaa").value,
-      kanBae: document.getElementById("kanBae").value,
-      photo: base64Image || "https://via.placeholder.com/150"
+      name: name,
+      item: item,
+      color: document.getElementById("haluu").value,
+      price: price,
+      deposit: deposit,
+      balance: balance,
+      country: document.getElementById("biyya").value || "Ethiopia",
+      address: document.getElementById("bakkaIttiDemmu").value,
+      phone: document.getElementById("lakkBil").value,
+      deliveryDate: document.getElementById("guyyaaBelamaa").value,
+      status: document.getElementById("kanBae").value,
+      photo: uploadedCloudinaryUrl || "https://via.placeholder.com/150",
+      createdAt: new Date().toLocaleDateString()
     };
 
-    if (currentEditingId) {
-      allRecords = allRecords.map(r => r.id === currentEditingId ? newRecord : r);
-      currentEditingId = null;
-      document.getElementById("btnSave").innerText = "💾 Galmeessi & Print";
-    } else {
-      allRecords.push(newRecord);
-    }
-
+    allRecords.unshift(newRecord);
     localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-    alert("✅ መረጃው በስኬት ተመዝግቧል!");
 
+    currentActiveRecord = newRecord;
+    openReceiptModal(newRecord);
+
+    // Auto send PDF receipt to Telegram
+    await sendCurrentReceiptPDFToTelegram();
+
+    // Reset Form
+    clearForm();
+    alert("✅ መረጃው ተመዝግቧል! PDF ደረሰኙ ወደ Telegram ተልኳል!");
+  }
+
+  function clearForm() {
     document.getElementById("maqa").value = "";
     document.getElementById("gosaMeeshaa").value = "";
     document.getElementById("haluu").value = "";
@@ -1080,87 +756,30 @@ th { background: var(--input-bg); color: var(--gold); }
     document.getElementById("lakkBil").value = "";
     document.getElementById("guyyaaBelamaa").value = "";
     document.getElementById("imgPreview").style.display = "none";
-    base64Image = "";
-
-    showReceipt(newRecord.id);
-    switchTab('tab-sales');
+    uploadedCloudinaryUrl = "";
   }
 
-  function filterSalesTable() {
-    const tbody = document.getElementById("salesTableBody");
-    tbody.innerHTML = "";
-
-    const filterVal = document.getElementById("branchFilter").value;
-    const searchVal = document.getElementById("searchInput").value.toLowerCase();
-
-    let filtered = allRecords.filter(r => {
-      let branchMatches = false;
-      if (filterVal === "MY_BRANCH") {
-        branchMatches = (r.branch === activeBranch);
-      } else if (filterVal === "ALL") {
-        branchMatches = true;
-      } else {
-        branchMatches = (r.branch === filterVal);
-      }
-
-      let searchMatches = r.id.toLowerCase().includes(searchVal) ||
-                          r.maqa.toLowerCase().includes(searchVal) ||
-                          r.gosaMeeshaa.toLowerCase().includes(searchVal) ||
-                          (r.bakkaIttiDemmu && r.bakkaIttiDemmu.toLowerCase().includes(searchVal));
-
-      return branchMatches && searchMatches;
-    });
-
-    filtered.forEach((r, idx) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><img src="${r.photo}" class="img-preview" alt="item"></td>
-        <td>${idx + 1}</td>
-        <td><b>${r.id}</b></td>
-        <td><span style="font-size:11px; background:var(--input-bg); padding:2px 6px; border-radius:4px;">${r.branch}</span></td>
-        <td>${r.maqa}</td>
-        <td>${r.gosaMeeshaa} (${r.haluu || '-'})</td>
-        <td>${r.gati} ETB</td>
-        <td>${r.qabdu} ETB</td>
-        <td style="color:var(--red); font-weight:bold;">${r.aftee} ETB</td>
-        <td>${r.biyya || '-'}</td>
-        <td>${r.bakkaIttiDemmu || '-'}</td>
-        <td>${r.lakkBil || '-'}</td>
-        <td>${r.guyyaaBelamaa || '-'}</td>
-        <td><span class="${r.kanBae === 'Delivered' ? 'badge-open' : ''}" style="${r.kanBae !== 'Delivered' ? 'background:var(--red); color:#fff; padding:2px 6px; border-radius:10px; font-size:11px;' : ''}">${r.kanBae}</span></td>
-        <td>
-          <button class="btn btn-sm" onclick="showReceipt('${r.id}')">🧾 Receipt</button>
-          <button class="btn btn-sm btn-warning" onclick="editRecord('${r.id}')">✏️ Edit</button>
-          <button class="btn btn-sm btn-danger" onclick="moveToTrash('${r.id}')">🗑️ Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function showReceipt(id) {
-    const record = allRecords.find(r => r.id === id);
-    if (!record) return;
-
-    document.getElementById("receiptImage").src = record.photo;
+  function openReceiptModal(rec) {
+    currentActiveRecord = rec;
+    document.getElementById("receiptImage").src = rec.photo;
+    
     document.getElementById("receiptDetails").innerHTML = `
-      <b>Receipt ID:</b> ${record.id}<br>
-      <b>Branch:</b> ${record.branch}<br>
-      <b>Customer:</b> ${record.maqa}<br>
-      <b>Item:</b> ${record.gosaMeeshaa} (${record.haluu || 'N/A'})<br>
-      <b>Total Price:</b> ${record.gati} ETB<br>
-      <b>Deposit:</b> ${record.qabdu} ETB<br>
-      <b>Balance:</b> <span style="color:red; font-weight:bold;">${record.aftee} ETB</span><br>
-      <b>Address:</b> ${record.bakkaIttiDemmu \vert{}\vert{} 'N/A'} (${record.biyya || 'N/A'})<br>
-      <b>Phone:</b> ${record.lakkBil || 'N/A'}<br>
-      <b>Delivery Date:</b> ${record.guyyaaBelamaa || 'N/A'}<br>
-      <b>Status:</b> ${record.kanBae}
+      <b>Receipt ID:</b> ${rec.id}<br>
+      <b>Branch:</b> ${rec.branch}<br>
+      <b>Customer:</b> ${rec.name}<br>
+      <b>Item:</b> ${rec.item} (${rec.color || 'N/A'})<br>
+      <b>Total Price:</b> ${rec.price} ETB<br>
+      <b>Deposit:</b> ${rec.deposit} ETB<br>
+      <b>Balance Due:</b> <span style="color:red; font-weight:bold;">${rec.balance} ETB</span><br>
+      <b>Phone:</b> ${rec.phone}<br>
+      <b>Address:</b> ${rec.address}, ${rec.country}<br>
+      <b>Delivery Date:</b> ${rec.deliveryDate}<br>
+      <b>Status:</b> ${rec.status}
     `;
 
-    const qrDiv = document.getElementById("qrcode");
-    qrDiv.innerHTML = "";
-    new QRCode(qrDiv, {
-      text: record.id,
+    document.getElementById("qrcode").innerHTML = "";
+    new QRCode(document.getElementById("qrcode"), {
+      text: `ID:${rec.id}|Name:${rec.name}|Balance:${rec.balance}`,
       width: 100,
       height: 100
     });
@@ -1172,40 +791,94 @@ th { background: var(--input-bg); color: var(--gold); }
     document.getElementById("receiptModal").style.display = "none";
   }
 
-  function editRecord(id) {
-    const record = allRecords.find(r => r.id === id);
-    if (!record) return;
+  // 📄 CONVERT RECEIPT TO PDF & SEND TO TELEGRAM BOT
+  async function sendCurrentReceiptPDFToTelegram() {
+    if (!currentActiveRecord) return;
 
-    currentEditingId = record.id;
-    document.getElementById("maqa").value = record.maqa;
-    document.getElementById("gosaMeeshaa").value = record.gosaMeeshaa;
-    document.getElementById("haluu").value = record.haluu || "";
-    document.getElementById("gati").value = record.gati;
-    document.getElementById("qabdu").value = record.qabdu;
-    document.getElementById("aftee").value = record.aftee;
-    document.getElementById("biyya").value = record.biyya || "";
-    document.getElementById("bakkaIttiDemmu").value = record.bakkaIttiDemmu || "";
-    document.getElementById("lakkBil").value = record.lakkBil || "";
-    document.getElementById("guyyaaBelamaa").value = record.guyyaaBelamaa || "";
-    document.getElementById("kanBae").value = record.kanBae;
+    const element = document.getElementById("printableReceipt");
+    const options = {
+      margin:       5,
+      filename:     `Receipt_${currentActiveRecord.id}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a5', orientation: 'portrait' }
+    };
 
-    if (record.photo) {
-      base64Image = record.photo;
-      const preview = document.getElementById("imgPreview");
-      preview.src = record.photo;
-      preview.style.display = "block";
+    try {
+      // Generate PDF Blob
+      const pdfBlob = await html2pdf().from(element).set(options).output('blob');
+
+      // Create Multipart Form Data for Telegram API
+      const formData = new FormData();
+      formData.append("chat_id", TELEGRAM_CHAT_ID);
+      formData.append("caption", `📄 *Official Receipt PDF*\n\n👤 *Customer:* ${currentActiveRecord.name}\n🛒 *Item:* ${currentActiveRecord.item}\n💵 *Total:* ${currentActiveRecord.price} ETB\n🔴 *Balance:* ${currentActiveRecord.balance} ETB\n🏢 *Branch:* ${currentActiveRecord.branch}`);
+      formData.append("parse_mode", "Markdown");
+      formData.append("document", pdfBlob, `Receipt_${currentActiveRecord.id}.pdf`);
+
+      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`, {
+        method: "POST",
+        body: formData
+      });
+
+      const resData = await response.json();
+      if (resData.ok) {
+        console.log("✅ PDF sent to Telegram successfully!");
+      } else {
+        console.error("Telegram Error:", resData);
+      }
+    } catch (err) {
+      console.error("Failed to send PDF to Telegram", err);
     }
-
-    document.getElementById("btnSave").innerText = "🔄 Update Record";
-    switchTab('tab-pos');
   }
 
-  function moveToTrash(id) {
-    if (confirm("🗑️ ይህንን መዝገብ ወደ Recycle Bin ማዛወር ይፈልጋሉ?")) {
-      const recIndex = allRecords.findIndex(r => r.id === id);
-      if (recIndex !== -1) {
-        trashRecords.push(allRecords[recIndex]);
-        allRecords.splice(recIndex, 1);
+  // 📋 RENDER & FILTER SALES TABLE
+  function filterSalesTable() {
+    const filter = document.getElementById("branchFilter").value;
+    const search = document.getElementById("searchInput").value.toLowerCase();
+    const tbody = document.getElementById("salesTableBody");
+    tbody.innerHTML = "";
+
+    const filtered = allRecords.filter(r => {
+      const matchBranch = (filter === "ALL") ? true : (filter === "MY_BRANCH" ? r.branch === activeBranch : r.branch === filter);
+      const matchSearch = r.name.toLowerCase().includes(search) || 
+                          r.id.toLowerCase().includes(search) || 
+                          r.item.toLowerCase().includes(search) ||
+                          r.address.toLowerCase().includes(search);
+      return matchBranch && matchSearch;
+    });
+
+    filtered.forEach((r, idx) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><img src="${r.photo}" class="img-preview"></td>
+        <td>${idx + 1}</td>
+        <td><b>${r.id}</b></td>
+        <td>${r.branch}</td>
+        <td>${r.name}</td>
+        <td>${r.item}</td>
+        <td>${r.price} ETB</td>
+        <td>${r.deposit} ETB</td>
+        <td style="color:red; font-weight:bold;">${r.balance} ETB</td>
+        <td>${r.country}</td>
+        <td>${r.address}</td>
+        <td>${r.phone}</td>
+        <td>${r.deliveryDate}</td>
+        <td><span class="badge-open">${r.status}</span></td>
+        <td>
+          <button class="btn btn-sm" onclick='openReceiptModal(${JSON.stringify(r)})'>🧾 Receipt</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteRecord('${r.id}')">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function deleteRecord(id) {
+    if (confirm("⚠️ መዝገቡን ወደ Recycle Bin መላክ ይፈልጋሉ?")) {
+      const idx = allRecords.findIndex(r => r.id === id);
+      if (idx !== -1) {
+        trashRecords.unshift(allRecords[idx]);
+        allRecords.splice(idx, 1);
         localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
         localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
         filterSalesTable();
@@ -1213,115 +886,39 @@ th { background: var(--input-bg); color: var(--gold); }
     }
   }
 
-  function renderTrashTable() {
-    const tbody = document.getElementById("trashTableBody");
-    tbody.innerHTML = "";
-
-    trashRecords.forEach(r => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${r.id}</td>
-        <td>${r.branch}</td>
-        <td>${r.maqa}</td>
-        <td>${r.gosaMeeshaa}</td>
-        <td>${r.gati} ETB</td>
-        <td>
-          <button class="btn btn-sm btn-success" onclick="restoreFromTrash('${r.id}')">♻️ Restore</button>
-          <button class="btn btn-sm btn-danger" onclick="permanentlyDelete('${r.id}')">❌ Delete Forever</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function restoreFromTrash(id) {
-    const recIndex = trashRecords.findIndex(r => r.id === id);
-    if (recIndex !== -1) {
-      allRecords.push(trashRecords[recIndex]);
-      trashRecords.splice(recIndex, 1);
-      localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
-      localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
-      renderTrashTable();
-      filterSalesTable();
-      alert("✅ መዝገቡ ወደነበረበት ተመልሷል!");
-    }
-  }
-
-  function permanentlyDelete(id) {
-    if (confirm("⚠️ ይህ መዝገብ ሙሉ በሙሉ ይጠፋል! እርግጠኛ ነዎት?")) {
-      trashRecords = trashRecords.filter(r => r.id !== id);
-      localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
-      renderTrashTable();
-    }
-  }
-
-  function emptyRecycleBin() {
-    if (confirm("🧹 በ Recycle Bin ውስጥ ያሉትን ሁሉንም መዝገቦች ማጽዳት ይፈልጋሉ?")) {
-      trashRecords = [];
-      localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
-      renderTrashTable();
-    }
-  }
-
-  // 📥 BACKUP DATA - Fixed CORS for Telegram Direct Backup Sending
+  // ⚙️ BACKUP DATA TO TELEGRAM
   async function exportBackupData() {
-    const backupObj = {
-      records: JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [],
-      trash: JSON.parse(localStorage.getItem("IFTU_TRASH_RECORDS")) || [],
-      branches: JSON.parse(localStorage.getItem("IFTU_BRANCH_LIST")) || [],
-      pins: JSON.parse(localStorage.getItem("IFTU_BRANCH_PINS")) || {}
+    const backupData = {
+      records: allRecords,
+      branches: branchesList,
+      pins: branchPINs,
+      date: new Date().toISOString()
     };
 
-    const jsonString = JSON.stringify(backupObj, null, 2);
-    const today = new Date().toISOString().split('T')[0];
-    const fileName = `IFTU_POS_BACKUP_${today}.json`;
+    const jsonStr = JSON.stringify(backupData, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
 
-    // 1. Download Local Computer Backup
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonString);
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", fileName);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    // Download locally
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `IFTUU_POS_Backup_${new Date().toLocaleDateString()}.json`;
+    a.click();
 
-    // 2. Send Telegram Text Backup Code & File Data
+    // Send Backup to Telegram
+    const formData = new FormData();
+    formData.append("chat_id", TELEGRAM_CHAT_ID);
+    formData.append("caption", "💾 *System Backup JSON File*");
+    formData.append("parse_mode", "Markdown");
+    formData.append("document", blob, `Backup_${new Date().toLocaleDateString()}.json`);
+
     try {
-      const summaryMsg = `📦 *IFTUU POS - DATABASE BACKUP*\n` +
-                         `📅 *Date:* ${today}\n` +
-                         `📊 *Total Sales Records:* ${backupObj.records.length}\n` +
-                         `🏢 *Branches:* ${backupObj.branches.length}\n\n` +
-                         `Below is your RAW JSON DATA BACKUP string (Copy & Save safely):`;
-
-      // Send Header Text Message
-      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: summaryMsg,
-          parse_mode: "Markdown"
-        })
+        body: formData
       });
-
-      // Send JSON Content as Markdown Code block in Telegram
-      const jsonChunks = jsonString.match(/[\s\S]{1,3500}/g) || [];
-      for (let i = 0; i < jsonChunks.length; i++) {
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: `\`\`\`json\n${jsonChunks[i]}\n\`\`\``,
-            parse_mode: "Markdown"
-          })
-        });
-      }
-
-      alert("✅ የ POS ዳታህ በስኬት ወርዷል! እንዲሁም ወደ ቴሌግራምህ ተልኳል።");
-    } catch (err) {
-      console.error("Telegram Backup Error:", err);
-      alert("✅ ዳታው ኮምፒውተርህ ላይ ወርዷል!");
+      alert("✅ Backup ፋይሉ ወደ ኮምፒውተርዎ ወርዷል፣ ወደ ቴሌግራምዎም ተልኳል!");
+    } catch (e) {
+      alert("⚠️ Backup ወርዷል ነገር ግን ወደ Telegram መላክ አልተቻለም።");
     }
   }
 
@@ -1332,135 +929,77 @@ th { background: var(--input-bg); color: var(--gold); }
     const reader = new FileReader();
     reader.onload = function(e) {
       try {
-        const importedData = JSON.parse(e.target.result);
-        
-        if (importedData.records && importedData.branches) {
-          localStorage.setItem("IFTU_RECORDS", JSON.stringify(importedData.records));
-          localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(importedData.trash || []));
-          localStorage.setItem("IFTU_BRANCH_LIST", JSON.stringify(importedData.branches));
-          localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(importedData.pins || {}));
-          
-          alert("🎉 ዳታህ በስኬት ተመልሷል! ገጹ አሁን Reload ይሆናል።");
-          location.reload();
-        } else {
-          alert("❌ የተሳሳተ የ Backup ፋይል ነው!");
+        const data = JSON.parse(e.target.result);
+        if (data.records) {
+          allRecords = data.records;
+          localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
+          filterSalesTable();
+          alert("✅ የመረጃ ታሪክዎ በተሳካ ሁኔታ ተመልሷል (Restored)!");
         }
       } catch (err) {
-        alert("❌ ፋይሉን ማንበብ አልተቻለም!");
+        alert("❌ የተሳሳተ ፋይል ነው!");
       }
     };
     reader.readAsText(file);
   }
 
-  function openForgetPinModal() {
-    document.getElementById("pinModal").style.display = "flex";
+  function renderTrashTable() {
+    const tbody = document.getElementById("trashTableBody");
+    tbody.innerHTML = "";
+    trashRecords.forEach(r => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.id}</td>
+        <td>${r.branch}</td>
+        <td>${r.name}</td>
+        <td>${r.item}</td>
+        <td>${r.price} ETB</td>
+        <td><button class="btn btn-sm btn-success" onclick="restoreRecord('${r.id}')">🔄 Restore</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
   }
 
-  function closePinModal() {
-    document.getElementById("pinModal").style.display = "none";
-  }
-
-  // 🤖 TELEGRAM OTP FUNCTIONS
-  async function sendTelegramOTP() {
-    const selectedBranch = document.getElementById("loginBranchSelect").value;
-    generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const message = `🔐 *IFTUU POS - Security Verification*\n\n` +
-                    `🏢 *Branch:* ${selectedBranch}\n` +
-                    `🔑 *Your Verification Code:* \`${generatedOTP}\` \n\n` +
-                    `⚠️ ይህንን ኮድ ለማንም አታሳይ!`;
-
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: TELEGRAM_CHAT_ID,
-          text: message,
-          parse_mode: "Markdown"
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.ok) {
-        alert("✅ የማረጋገጫ ኮዱ (OTP) ወደ ቴሌግራምህ ተልኳል! እባክህ ቴሌግራምህን እይ።");
-      } else {
-        alert("❌ ኮዱን መላክ አልተቻለም! Bot Token እና Chat ID በትክክል መሞላታቸውን ያረጋግጡ።");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("❌ የኔትወርክ ስህተት! የኢንተርኔት ግንኙነትዎን ያረጋግጡ።");
+  function restoreRecord(id) {
+    const idx = trashRecords.findIndex(r => r.id === id);
+    if (idx !== -1) {
+      allRecords.unshift(trashRecords[idx]);
+      trashRecords.splice(idx, 1);
+      localStorage.setItem("IFTU_RECORDS", JSON.stringify(allRecords));
+      localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
+      renderTrashTable();
+      filterSalesTable();
     }
   }
 
-  function verifyOTPAndResetPin() {
-    const userEnteredOTP = document.getElementById("otpCodeInput").value.trim();
-    const newPin = document.getElementById("newPinInput").value.trim();
-    const selectedBranch = document.getElementById("loginBranchSelect").value;
-
-    if (!generatedOTP) {
-      alert("⚠️ እባክዎን አስቀድመው \"Send Verification Code\" የሚለውን ተጭነው ኮድ ያስልኩ!");
-      return;
-    }
-
-    if (userEnteredOTP === generatedOTP) {
-      if (newPin && newPin.length >= 4) {
-        branchPINs[selectedBranch] = newPin;
-        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-        
-        alert(`🎉 በስኬት ተረጋገጠ! የ "${selectedBranch}" PIN ተቀይሯል።`);
-        generatedOTP = null;
-        closePinModal();
-      } else {
-        alert("⚠️ እባክዎን ቢያንስ የ 4 አሃዝ አዲስ PIN ያስገቡ!");
-      }
-    } else {
-      alert("❌ የተሳሳተ የማረጋገጫ ኮድ (OTP)! እባክዎን እንደገና ይሞክሩ።");
+  function emptyRecycleBin() {
+    if (confirm("⚠️ በ Recycle bin ውስጥ ያሉትን መረጃዎች በሙሉ ማጥፋት ይፈልጋሉ?")) {
+      trashRecords = [];
+      localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
+      renderTrashTable();
     }
   }
 
-  function openChangePinModal() {
-    document.getElementById("changePinModal").style.display = "flex";
+  function switchTab(tabId) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    document.getElementById("navDropdown").classList.remove("show");
   }
 
-  function closeChangePinModal() {
-    document.getElementById("changePinModal").style.display = "none";
-  }
-
-  function submitChangePin() {
-    const targetBranch = document.getElementById("changePinBranchSelect").value;
-    const authPin = document.getElementById("mainBranchAuthPinInput").value;
-    const newPin = document.getElementById("changeNewPinInput").value;
-
-    if (authPin === branchPINs[MAIN_BRANCH_NAME]) {
-      if (newPin && newPin.length >= 4) {
-        branchPINs[targetBranch] = newPin;
-        localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
-        alert(`✅ የ "${targetBranch}" PIN በተሳካ ሁኔታ ተቀይሯል!`);
-        closeChangePinModal();
-      } else {
-        alert("⚠️ እባክዎን ቢያንስ የ 4 አሃዝ አዲስ PIN ያስገቡ!");
-      }
-    } else {
-      alert("❌ የ Main Branch Authorization PIN ተሳስቷል!");
-    }
+  function toggleNavDropdown() {
+    document.getElementById("navDropdown").classList.toggle("show");
   }
 
   function toggleTheme() {
     document.body.classList.toggle("light-mode");
   }
 
-  function changeLanguage() {
-    const lang = document.getElementById("langSelect").value;
-    const t = translations[lang] || translations.om;
+  function lockSystem() {
+    document.getElementById("branchLockOverlay").style.display = "flex";
+  }
 
-    for (let key in t) {
-      const el = document.getElementById(key);
-      if (el) el.innerText = t[key];
-    }
+  function goBack() {
+    closeModal();
   }
 </script>
 </body>
