@@ -1151,7 +1151,7 @@ th { background: var(--input-bg); color: var(--gold); }
       <b>Total Price:</b> ${record.gati} ETB<br>
       <b>Deposit:</b> ${record.qabdu} ETB<br>
       <b>Balance:</b> <span style="color:red; font-weight:bold;">${record.aftee} ETB</span><br>
-      <b>Address:</b> ${record.bakkaIttiDemmu || 'N/A'} (${record.biyya || 'N/A'})<br>
+      <b>Address:</b> ${record.bakkaIttiDemmu \vert{}\vert{} 'N/A'} (${record.biyya || 'N/A'})<br>
       <b>Phone:</b> ${record.lakkBil || 'N/A'}<br>
       <b>Delivery Date:</b> ${record.guyyaaBelamaa || 'N/A'}<br>
       <b>Status:</b> ${record.kanBae}
@@ -1263,7 +1263,7 @@ th { background: var(--input-bg); color: var(--gold); }
     }
   }
 
-  // 📥 BACKUP DATA - (Download + Send Document to Telegram)
+  // 📥 BACKUP DATA - Fixed CORS for Telegram Direct Backup Sending
   async function exportBackupData() {
     const backupObj = {
       records: JSON.parse(localStorage.getItem("IFTU_RECORDS")) || [],
@@ -1276,7 +1276,7 @@ th { background: var(--input-bg); color: var(--gold); }
     const today = new Date().toISOString().split('T')[0];
     const fileName = `IFTU_POS_BACKUP_${today}.json`;
 
-    // 1. Download to Computer / Local Storage
+    // 1. Download Local Computer Backup
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonString);
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
@@ -1285,29 +1285,42 @@ th { background: var(--input-bg); color: var(--gold); }
     downloadAnchor.click();
     downloadAnchor.remove();
 
-    // 2. Send Backup File to Telegram Bot
+    // 2. Send Telegram Text Backup Code & File Data
     try {
-      const blob = new Blob([jsonString], { type: "application/json" });
-      const formData = new FormData();
-      formData.append("chat_id", TELEGRAM_CHAT_ID);
-      formData.append("caption", `📥 *IFTUU POS - Data Backup*\n📅 *Date:* ${today}\n📊 *Total Records:* ${backupObj.records.length}`);
-      formData.append("parse_mode", "Markdown");
-      formData.append("document", blob, fileName);
+      const summaryMsg = `📦 *IFTUU POS - DATABASE BACKUP*\n` +
+                         `📅 *Date:* ${today}\n` +
+                         `📊 *Total Sales Records:* ${backupObj.records.length}\n` +
+                         `🏢 *Branches:* ${backupObj.branches.length}\n\n` +
+                         `Below is your RAW JSON DATA BACKUP string (Copy & Save safely):`;
 
-      const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`, {
+      // Send Header Text Message
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         method: "POST",
-        body: formData
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: summaryMsg,
+          parse_mode: "Markdown"
+        })
       });
 
-      const resData = await response.json();
-
-      if (resData.ok) {
-        alert("✅ የ POS ዳታህ በስኬት ወርዷል! እንዲሁም ወደ ቴሌግራምህ ተልኳል።");
-      } else {
-        alert("✅ ዳታው ኮምፒውተርህ ላይ ወርዷል! (ነገር ግን ወደ ቴሌግራም መላክ አልተቻለም)");
+      // Send JSON Content as Markdown Code block in Telegram
+      const jsonChunks = jsonString.match(/[\s\S]{1,3500}/g) || [];
+      for (let i = 0; i < jsonChunks.length; i++) {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: `\`\`\`json\n${jsonChunks[i]}\n\`\`\``,
+            parse_mode: "Markdown"
+          })
+        });
       }
+
+      alert("✅ የ POS ዳታህ በስኬት ወርዷል! እንዲሁም ወደ ቴሌግራምህ ተልኳል።");
     } catch (err) {
-      console.error("Telegram Send Backup Error:", err);
+      console.error("Telegram Backup Error:", err);
       alert("✅ ዳታው ኮምፒውተርህ ላይ ወርዷል!");
     }
   }
