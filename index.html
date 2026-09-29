@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IFTUU FURNITURE - POS V19 (Cloudinary, Backup & Telegram PDF)</title>
+<title>IFTUU FURNITURE - POS V19 (Cloudinary, Backup & Telegram Auth Code)</title>
 
 <!-- QR Code Generator & Scanner Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -301,7 +301,7 @@ th { background: var(--input-bg); color: var(--gold); }
     <button class="btn" style="width: 100%; margin-top: 10px;" id="btnLogin" onclick="verifyBranchPin()">Seeni / Login</button>
 
     <div style="display: flex; justify-content: space-between; margin-top: 15px; font-size: 12px;">
-      <a href="#" onclick="openForgetPinModal()" style="color: var(--gold); text-decoration: none;">🔑 Forget PIN?</a>
+      <a href="#" onclick="openForgetPinModal()" style="color: var(--gold); text-decoration: none;">🔑 Send Code to Telegram?</a>
       <a href="#" onclick="openChangePinModal()" style="color: var(--muted); text-decoration: none;">🔐 Change PIN</a>
     </div>
   </div>
@@ -571,7 +571,7 @@ th { background: var(--input-bg); color: var(--gold); }
   const CLOUDINARY_CLOUD_NAME = "bpim64mv";
   const CLOUDINARY_UPLOAD_PRESET = "Iftu Office";
 
-  // 🤖 TELEGRAM BOT CONFIGURATION
+  // 🤖 TELEGRAM BOT CONFIGURATION (የራስህን BOT TOKEN እና CHAT ID እዚህ አስገባ!)
   const TELEGRAM_BOT_TOKEN = "8725948513:AAHRdHqcZbsPVEK9Fp6MkIFZYLfofWQ09sI"; 
   const TELEGRAM_CHAT_ID = "8991431068";
 
@@ -658,6 +658,49 @@ th { background: var(--input-bg); color: var(--gold); }
 
   function lockSystem() {
     document.getElementById("branchLockOverlay").style.display = "flex";
+  }
+
+  // 🔑 TELEGRAM AUTH CODE / OTP SENDER (Forget PIN)
+  async function openForgetPinModal() {
+    const branch = document.getElementById("loginBranchSelect").value;
+    const otpCode = Math.floor(100000 + Math.random() * 900000); // 6 ዲጂት የነበረ OTP ይፈጥራል
+
+    alert(`⏳ የትክክለኛነት ማረጋገጫ ኮድ (Verification Code) ወደ ቴሌግራም ቦትህ እየተላከ ነው...`);
+
+    const message = `🔐 *PIN RESET VERIFICATION CODE*\n\n🏢 *Branch:* ${branch}\n🔑 *Your Verification Code:* \`${otpCode}\` \n\nይህንን ኮድ በሲስተሙ ላይ በማስገባት አዲስ PIN ማስተካከል ይችላሉ።`;
+
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: "Markdown"
+        })
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        const userEnteredOtp = prompt("📲 ወደ ቴሌግራምህ የተላከውን የ 6 ዲጂት Verification Code አስገባ:");
+        if (userEnteredOtp == otpCode) {
+          const newPin = prompt("🔑 አዲስ PIN አስገባ (ቢያንስ 4 ዲጂት):");
+          if (newPin && newPin.length >= 4) {
+            branchPINs[branch] = newPin;
+            localStorage.setItem("IFTU_BRANCH_PINS", JSON.stringify(branchPINs));
+            alert("✅ PINህ በተሳካ ሁኔታ ተቀይሯል! አሁን ባስገባኸው አዲስ PIN መግባት ትችላለህ።");
+          } else {
+            alert("⚠️ PIN ቢያንስ 4 ዲጂት መሆን አለበት!");
+          }
+        } else {
+          alert("❌ የተሳሳተ Verification Code አስገብተሃል!");
+        }
+      } else {
+        alert("❌ ወደ ቴሌግራም መላክ አልተቻለም! እባክህ በቴሌግራምህ ቦቱን ገብተህ /start ማድረገህንና Chat ID/Token ትክክል መሆኑን አረጋግጥ።");
+      }
+    } catch (err) {
+      alert("❌ የኔትወርክ ስህተት አጋጥሟል! የኢንተርኔት ግንኙነትህን አረጋግጥ።");
+    }
   }
 
   function calculateAftee() {
@@ -992,11 +1035,6 @@ th { background: var(--input-bg); color: var(--gold); }
       }
     };
     reader.readAsText(file);
-  }
-
-  // 🔑 PIN MODALS MANAGEMENT
-  function openForgetPinModal() {
-    alert(`🔑 PIN ለማስመለስ የዋናውን ቅርንጫፍ (${MAIN_BRANCH_NAME}) አድሚን ያነጋግሩ ወይም ነባሪውን PIN (4321) ይጠቀሙ።`);
   }
 
   function openChangePinModal() {
