@@ -326,7 +326,7 @@ th { background: var(--input-bg); color: var(--gold); }
   </div>
 
   <div class="nav-container">
-    <button class="back-btn" onclick="goBack()" title="Back / የኋሊት">⬅️️ Back</button>
+    <button class="back-btn" onclick="goBack()" title="Back / የኋሊት">⬅ Back</button>
 
     <select id="langSelect" onchange="changeLanguage()" style="padding:6px 10px; border-radius:8px; background:var(--input-bg); color:var(--gold); font-weight:bold; border:1px solid var(--gold); cursor:pointer;">
       <option value="om">🌐 Afaan Oromoo</option>
@@ -430,12 +430,9 @@ th { background: var(--input-bg); color: var(--gold); }
         <div style="flex: 2; min-width: 320px;">
           <label style="font-weight:bold; color:var(--gold);">🎯 Branch Filter:</label>
           <div style="display: flex; gap: 8px; margin-top: 5px;">
-            <select id="branchFilter" onchange="filterSalesTable()" style="flex:1;">
-              <option value="MY_BRANCH">🏢 My Current Branch</option>
-              <option value="ALL" id="opt_all_branches">🔓 All Branches (Main Owner View)</option>
-            </select>
+            <select id="branchFilter" onchange="filterSalesTable()" style="flex:1;"></select>
             <button class="btn btn-sm btn-success" id="btnAddBranchBtn" onclick="addNewBranchWithPin()" title="Add New Branch">➕ Add Branch</button>
-            <button class="btn btn-sm btn-danger" id="btnDelBranchBtn" onclick="deleteSelectedBranchWithPin()" title="Delete Branch">🗑️ Delete Branch</button>
+            <button class="btn btn-sm btn-danger" id="btnDelBranchBtn" onclick="deleteSelectedBranchWithPin()" title="Delete Branch">🗑️️ Delete Branch</button>
           </div>
         </div>
 
@@ -648,15 +645,18 @@ th { background: var(--input-bg); color: var(--gold); }
     if (!filterSel) return;
 
     filterSel.innerHTML = "";
+    
+    // 🔒 Strictly Restrict Normal Branches: Only show their own branch option
     const optMy = document.createElement("option");
     optMy.value = "MY_BRANCH";
     optMy.textContent = `🏢 My Current Branch (${activeBranch})`;
     filterSel.appendChild(optMy);
 
+    // 🔓 Only Main Branch (Ginchi Branch / Main Admin) gets access to ALL Branches
     if (isMainOwner) {
       const optAll = document.createElement("option");
       optAll.value = "ALL";
-      optAll.textContent = "🔓 ALL BRANCHES (Main Branch Admin View)";
+      optAll.textContent = "🔓 ALL BRANCHES (Main Owner View)";
       filterSel.appendChild(optAll);
 
       branchesList.forEach(b => {
@@ -686,6 +686,8 @@ th { background: var(--input-bg); color: var(--gold); }
 
     if (pin === branchPINs[branch] || pin === branchPINs[MAIN_BRANCH_NAME]) {
       activeBranch = branch;
+      
+      // Super Admin access ONLY if logged into Ginchi Branch or used Main Branch PIN
       isMainOwner = (branch === MAIN_BRANCH_NAME || pin === branchPINs[MAIN_BRANCH_NAME]);
       
       document.getElementById("activeBranchTag").innerText = `[ ${activeBranch} ${isMainOwner ? '⭐ Main Admin' : ''} ]`;
@@ -798,7 +800,7 @@ th { background: var(--input-bg); color: var(--gold); }
     const balance = document.getElementById("aftee").value || 0;
 
     if (!name || !item || !price) {
-      alert("⚠️️ እባክዎን አስፈላጊ የሆኑ ቦታዎችን (ስም፣ የዕቃ ዓይነት፣ ዋጋ) ይሙሉ!");
+      alert("⚠ እባክዎን አስፈላጊ የሆኑ ቦታዎችን (ስም፣ የዕቃ ዓይነት፣ ዋጋ) ይሙሉ!");
       return;
     }
 
@@ -911,7 +913,7 @@ th { background: var(--input-bg); color: var(--gold); }
     }
   }
 
-  // 📋 RENDER & FILTER SALES TABLE (Main Branch Sees All)
+  // 📋 RENDER & FILTER SALES TABLE (Main Branch Sees All, Other Branches Restricted)
   function filterSalesTable() {
     const filter = document.getElementById("branchFilter").value;
     const search = document.getElementById("searchInput").value.toLowerCase();
@@ -920,6 +922,8 @@ th { background: var(--input-bg); color: var(--gold); }
 
     const filtered = allRecords.filter(r => {
       let matchBranch = false;
+      
+      // Strict rule: Non-main branches ONLY see their own records
       if (!isMainOwner) {
         matchBranch = (r.branch === activeBranch);
       } else {
@@ -979,7 +983,9 @@ th { background: var(--input-bg); color: var(--gold); }
     if (!tbody) return;
     tbody.innerHTML = "";
 
-    trashRecords.forEach((r) => {
+    const filteredTrash = trashRecords.filter(r => isMainOwner || r.branch === activeBranch);
+
+    filteredTrash.forEach((r) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><b>${r.id}</b></td>
@@ -1010,13 +1016,17 @@ th { background: var(--input-bg); color: var(--gold); }
 
   function emptyRecycleBin() {
     if (confirm("⚠️ ሁሉንም የተሰረዙ መዝገቦች በቋሚነት ማጥፋት ይፈልጋሉ?")) {
-      trashRecords = [];
+      if (!isMainOwner) {
+        trashRecords = trashRecords.filter(r => r.branch !== activeBranch);
+      } else {
+        trashRecords = [];
+      }
       localStorage.setItem("IFTU_TRASH_RECORDS", JSON.stringify(trashRecords));
       renderTrashTable();
     }
   }
 
-  // ⚙️ BACKUP & RESTORE DATA
+  // ⚙️️ BACKUP & RESTORE DATA
   async function exportBackupData() {
     const backupData = {
       records: allRecords,
